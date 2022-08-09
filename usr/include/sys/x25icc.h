@@ -1,0 +1,3 @@
+#define ICC_CONNECT	0x23
+#define ICC_WRITEMEM	0x24
+#define ICC_IDENT	0x88

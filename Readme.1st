@@ -1,1 +1,49 @@
-Intermediate Readme
+This is part 1 of the reverse engineered sources of the PCS Cadmus MUNIX-1.2 kernel (32bit)
+which can be found on the IS0371 tapes (check FTP server of Computermuseum Stuttgart, Germany,
+contact Klemens Krause).
+
+PCS was a German systems vendor in the 80s, located in Munich, hence "MUNIX": Munich Unix. They came up with 
+an AT&T base Unix for a QBUS-based (!) 68010 machine (later an 68020) machine. The interesting feature of this 
+Unix derivation was the inclusion of the so called Newcastle connection which is an early multicomputer network 
+(similar to the later NFS) which like later SUN workstations allowed disk based as well es diskless hosts. 
+Newcastle connection uses an own raw Ethernet protocol; it implemented basic layer 2 stuff (ARP, ICMP) but did 
+not use TCP/IP. It is AFAIK documented here for the first time.
+
+The package includes the 32 bit 1.2 kernel from Jan, 1988, including all kernel support libraries as well as some
+standard libs (libc, libm, etc).
+There are also the rebuilt sources of the MINITOR boot monitor.
+
+To guarantee correctness of the rebuilt sources, I used the following process:
+- I ignore describing the unpacking and conversion of the distribution tape - many files are CPIO archives, possibly
+  with some uninteresting byte-sex issues.
+- The distribution contains a set of libraries (under /usr/src) that allow regenerating a new kernel. They are
+  plain AR files, without the standard .a extension. These were unpacked into the .o files of the kernel. MUNIX uses 
+  COFF in an obscure incarnation - it uses the VAX magic, but internally contains 68K code. This is why well-known
+  IDA disassembler cannot handle this without some patching, but even after fixing the magic it has severe issues with
+  calculating .data and .bss addresses. This is why I wrote an own disassembler (pcsdis) and only used IDA for code
+  containing 68881 FP instructions (was to lazy to put them in - they are only used in libm.a anyway).
+- With the knowledge of the include headers, it was possible to transform the disassembly output back into C code.
+  Fortunately, the PCC-based C compiler produces rather regular code.
+  Looking up similar sources from elsehere, like Bitsavers and Tuhs, I could identify the original parts from AT&T code
+  und find the modifications that PCS made to it. The whole I/O devices library was non-AT&T code, some of it resembled
+  PDP11 QBUS device handlers, but most of it was hard work to compare the driver code with DEC documentation
+  e.g. from Bitsavers.
+- After having the regenerated source code, it was necessary to verify its correctness. I wrote, based on the 68K Musashi
+  emulator code, a syscall emulator (pcsrun) that translated the most important MUNIX syscalls (COFF loader, open, close, read, write, 
+  fork, etc.) into corresponding OS calls, so that an original MUNIX executable like CC itself basically worked with files
+  from the underlying OS (in my case Windows, or Linux, resp.). It contains only the syscalls that the compiler/linker etc.
+  used, however, so it won't allow to try out network code. This way, I could run my C code through the original compiler
+  from the MUNIX distribution, and compare its output with the original binaries. This way I found numerous anachronisms
+  that resulted from some rather obscure type casts (which messed up register usage), as well as unused variables an even
+  several bugs that appear to come from sloppy adaption of original AT&T code to the platform. When trying to get the LD linker
+  to run, it turned out that this will work only after relaxing seg fault handling on NULL pointers - some strcmp(xxx,(char*)0)
+  were found in the code.
+
+- For reference, pcsdis and pcsrun are also included, however the code is ugly - they were just work horse for the purpose of
+  getting stuff done.
+
+Beyond references to unmodified AT&T copyrighted sources from elsewhere which were included for documentation where the code
+came from, all files may be freely used.
+
+Holger Veit hveit01@web.de 26.7.2022
+

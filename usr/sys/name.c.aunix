@@ -1,0 +1,20 @@
+#include "sys/types.h"
+#include "sys/utsname.h"
+
+
+struct utsname utsname = {
+	"cadmus",
+	"aunix",
+	"Aug 87",
+	"m32-1.2",
+	{ 0x0800, 0x2700, 0x8000},   /* Ethernet address           */
+	0,                           /* unique serial number    */
+	0xc00c0000 + 0x8000L         /* unique ip address        */
+};
+
+short   stnaddr = 0;           /* BBP station address */
+
+enetaddr bcname = {0xFFFF, 0xFFFF, 0xFFFF};       /* broadcast address */
+
+enetaddr noname = { 0, 0, 0 };
+

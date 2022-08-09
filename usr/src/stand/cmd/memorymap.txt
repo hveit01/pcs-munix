@@ -1,0 +1,85 @@
+sections:
+
+
+
+    3f80 0000 - 3fff ffff   mapped physical address
+
+    3f80 0000 - 3f8f ffff   1MB SYSVA
+    3f90 0000 - 3f9f ffff   1MB system virtual address space
+    3fa0 0000 - 3faf ffff   1MB |
+    3fb0 0000 - 3fbf ffff   1MB |
+    3fc0 0000 - 3fcf ffff   1MB |
+    3fd0 0000 - 3fdf ffff   1MB |
+    3fe0 0000 - 3fef ffff   1MB BIP/Frame buffers
+    3ff0 0000 - 3fff ffff   1MB minitor and paging RAM + QBUS I/O
+    
+    3f8f 0000 - 3f8f 6fff   mapped RAM (SYSVA + 0xf0000)
+    3f8f 7000 - 3f8f 7bff   used for ICC buffer (12K)
+    3f8f 7c00 - 3f8f 7fff   used (4K)
+    
+    3f8f 8000 - 3f8f ffff   RAM for Minitor (.bss)
+    
+    3f90 0000 - 3fdf ffff   reserved space
+    3fe0 0000 - 3fe3 ffff   BIP 0 memory
+    3fe4 0000 - 3fe7 ffff   BIP 1 memory
+    3fe8 0000 - 3feb ffff   BIP 2 memory
+    3fec 0000 - 3fef ffff   BIP 3 memory
+    
+    3ff8 0000 - 3ff8 ffff   Minitor ROM
+        3ff8 0000 - 3ff8 064b   vectors     locore.s
+        3ff8 064c - 3ff8 205d   monitor     monitor1.c
+            align
+        3ff8 2060 - 3ff8 2dcf   monitor     monitor2.c
+        3ff8 2dd0 - 3ff8 369c   console     console.c
+            mfp, dlv11, bip, dh11
+            align
+        3ff8 36a0 - 3ff8 3bc3   colconsole  colcons.c
+        3ff8 3bc4 - 3ff8 794b   disassembler disass.c
+        3ff8 794a - 3ff8 8f4c   memtest     memtest1.s
+        3ff8 8f4e - 3ff8 93dd   memtest     memtest2.c
+        3ff8 93de - 3ff8 a5f1   utils       util.c
+        3ff8 a5f2 - 3ff8 c495   devices     dev_*.c
+            hk, st, icc, is, iq, iw, scc, sw, ts, if, il
+    3ff8 c496 - 3ff8 d335       .data locore, monitor
+    3ff8 d336 - 3ff8 d235       .data console
+    3ff8 d236 - 3ff8 de35       .data colconsole
+    3ff8 de36 - 3ff8 ead1       .data disass
+    3ff8 ead2 - 3ff8 ed73       .data memtest
+    3ff8 ed74 - 3ff8 efa1       .data utils
+    3ff8 efa2 - 3ff8 f427       .data device
+    3ff8 f428 - 3ff8 ffff       empty
+    
+    3ff9 0000 - 3ff9 ffff       unused
+    
+    3ffc 0000 - 3ffc 07ff       __ptbr
+    3ffc 8000 - 3ffc 9fff       __ptec
+    3ffc a000 - 3ffc bfff       _sbrpte
+    3ffd 0000 - 3ffd 0fff       __dmapt
+    3ffd 8000 - 3ffd 8fff       __lru
+    3ffd 9000 - 3ffd 9fff       __puc
+    
+    3ffe 0000                   __mfp
+    3ffe 8000                   __pcr
+    3ffe 8002                   __esr
+    3ffe 8004                   __pbc
+    3ffe 8006                   __ccr
+    
+    3fff e010                   dh11 device
+    3fff e300                   icc device
+    3fff f550                   ts device   
+    3fff fd48                   dlv11 device
+    3fff fdc0                   sw device
+    3fff ff20                   hk device
+    3fff ff80 - 3fff ffa1       st device
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+            

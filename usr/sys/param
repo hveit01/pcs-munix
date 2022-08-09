@@ -1,0 +1,14 @@
+MEMORY
+{
+	valid: origin = 0x3f800000, length = 0x800000
+}
+SECTIONS
+{
+	GROUP 0x3f800000:
+	{ .text: {} }
+	GROUP ALIGN(4096):
+	{
+		.data: {}
+		.bss: {}
+	}
+}

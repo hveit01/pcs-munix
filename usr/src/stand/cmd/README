@@ -1,0 +1,6 @@
+This is the source of the MINITOR ROM.
+
+I found several bugs, but some of them may result from bit rot from the
+EPROMs that were read. While the files here compile/assemble, 
+and reverse engineering should be correct, it is not clear yet whether they
+will produce the correct EPROM content on linking.

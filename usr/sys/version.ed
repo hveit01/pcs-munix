@@ -1,0 +1,17 @@
+s/on: /&\
+/
+d
+!date >/tmp/xinu.foo
+r /tmp/xinu.foo
+!rm /tmp/xinu.foo
+.-1
+j
+a
+";
+.
+.-1
+j
+w
+w
+q
+

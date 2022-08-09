@@ -1,0 +1,136 @@
+#define DIALOG          1
+#define BIP             1 /* Bitmap Display                                */
+#define COL             1 /* Colour Display                                */
+#define ICC_SCC         1 /* ICC Serial lines for two terminals            */
+#define MUXKE2          1 /* PCS Terminal Multiplexer with modem control   */
+
+#define SW              1 /* Winchester disks; 1st SP15 or SP25 controller */
+#define SW2             1 /* Winchester disks; 2nd SP15 or SP25 controller */
+#define IW              1 /* ICC winchester (WD51) with MD01 controller    */
+#define HK              1 /* HK winchester with Emulex SC02 Controller     */
+
+#define IS              1 /* ICC streamer (CTS) with MT01 controller       */
+#define TS              1 /* TS11 Tape with SP25 Controller                */
+#define ST              1 /* ST streamer                                   */
+#define IF              1 /* ICC Floppy (FD) with Xebec controller         */
+
+#define ICC_UNISON      1 /* ICC LANCE (Ethernet) driver for MUNIX/NET     */
+#undef  ICC_ETH           /* ICC LANCE (Ethernet) driver for BBP and ETHPT (DECnet)*/
+#undef  ICC_TCPIP         /* (Ethernet) driver for TCP/IP                  */
+#define NONSTDEA        0 /* non-standard Ethernet address                 */
+#undef  X25               /* X.25, Datex-P Interface                       */
+#undef  DQS               /* BSC-KE for IBM remote job entry (RJE)         */
+#undef  SDLC              /* SDLC Protokoll (IBM-SNA 3274 Interface)       */
+
+#define MESG            1 /* Message passing                               */
+#define SEMA            1 /* Semaphores                                    */
+#define SHMEM           1 /* Shared memory                                 */
+#define FLOCK           1 /* Record Locking, sys V.2                       */
+#define SBP             1 /* Simple Block Port                             */
+#define SXT             1 /* SXT Terminal multiplexer                      */
+#define RLOCK           1 /* Record locking, John Bass                     */
+#define VTTY            1 /* VTTY                                          */
+#define PTY             1 /* PTY - virtual Terminal driver for remote login*/
+#undef  STREAM            /* STREAM support                                */
+#undef  RFS               /* RFS support                                   */
+
+#define MASTERNODE      1 /* autonomous system or file server node         */
+#undef  DLSUPPORT         /* diskless node support                         */
+#define NBIP            4 /* number of Bit-Map controllers                 */
+#define NCBIP           2 /* number of Color Bit-Map controllers (1 or 2)  */
+#define NDH11           8 /* number of serial interfaces on MUXKE2 (8, 16, 24 or 32)*/
+#define ARPA_ICC        0 /* ICC for TCP/IP LAN driver                     */
+#define TS_DILOG        1 /* TS controller with normal tsbae,like DILOG    */
+#undef  TS_EMULEX         /* TS controller from EMULEX, or's 0x2400 to tsbae*/
+#define NPTY           48 /* number of remote login lines (PTY)            */
+#define NLP             1 /* number of LP boards                           */
+
+#define ROOT           19 /* major device id of ROOT device                */
+#define ROOTUNIT        0 /* minor device number of ROOT device            */
+#define SWAP           19 /* major device id of SWAP device                */
+#define SWAPUNIT        2 /* minor device number of SWAP device            */
+#define SWAPLO          0 /* start of swap space (512 Byte Blocks)         */
+#define NSWAP       30720 /* Number of Blocks in swap area (512 Byte Blocks)*/
+#define HERTZ          50 /* Line frequency in Hertz (50 or 60 cycles)     */
+#define BOOTCON         0 /* System console id (var, MUXKE2, BIP, ICC_SCC, COL)*/
+
+
+
+
+#define MAXPMEM btop(0) /* max amount of physical memory to use:        */ 
+                        /* 0 means use all                              */ 
+                                                                           
+/* system parameters */                                                    
+#define NBUF    200     /* size of buffer cache                         */ 
+#define NINODE  250     /* number of in core inodes                     */ 
+#define NFILE   200     /* number of in core file structures            */ 
+#define NMOUNT  30      /* number of mountable file systems             */ 
+#define NCALL   80      /* max simultaneous time callouts               */ 
+#define NPROC   100     /* max number of processes                      */ 
+#define NTEXT   80      /* max number of pure texts                     */ 
+#define NCLIST  100     /* max total clist size                         */ 
+#define MAXUP   50      /* max processes per user                       */ 
+#define NHBUF   64      /* size of buffer hash table, must be power of two */ 
+#define NFLOCKS 100     /* number of record lock structures             */ 
+#define NPBUF   4       /* buffer headers for physio                    */ 
+#define NSXT    6       /* Number of sxt layers                         */ 
+#define MAXDLNACTV 8    /* max number of active dlnodes                 */ 
+#define REGIONS 250     /* number of regions, ca. 2.5 * NPROC           */ 
+#define GETPGSLO  4                                                        
+#define GETPGSHI  15    /* number of free pages must be greater than    */ 
+                        /* GETPGSHI before a process is loaded into core*/ 
+#define MAXSLICE  HERTZ /* tine slice before rescheduling               */ 
+#define VHANDR  1       /* max rate in seconds at which vhand will run  */ 
+#define VHNDFRAC 10     /* vhandl = maxmem / VHNDFRAC                   */ 
+#define AGERATE 0       /* process age rate                             */ 
+#define PREPAGE 0       /* prepage factor                               */ 
+#define MAXSC   1       /* max number of pages swapped out at a time    */ 
+#define SPTMAP  100     /* size of user page table map                  */ 
+#define PGMAP   100     /* size of kernel page table map                */ 
+#define DMAMAP  10      /* size of dma page table map                   */ 
+#define DMA18MAP 5      /* size of dma page table map for 18 bit controllers*/ 
+#define AUTOUP  10      
+#define FLUSHRATE 5     
+#define NQUEUE   0      
+
+
+
+/* suggested default values */                                             
+#ifdef  MESG                                                               
+#define MSGMAP  100                                                        
+#define MSGMAX  8192    /* maximum message size (bytes)                 */ 
+#define MSGMNB  16384   /* maximum message queue length (bytes)         */ 
+#define MSGMNI  50      /* max number of message queues                 */ 
+#define MSGSSZ  8       /* message segment size                         */ 
+#define MSGTQL  40      /* max number of outstanding messages           */ 
+#define MSGSEG  1024    /* number of message segments                   */ 
+#endif                                                                     
+                                                                           
+#ifdef  SEMA                                                              
+#define SEMMAP  10      /* semaphore map size                           */ 
+#define SEMMNI  10      /* number of semaphore identifiers              */ 
+#define SEMMNS  60      /* number of semaphores in the system           */ 
+#define SEMMNU  30      /* number of undo structures in the system      */ 
+#define SEMMSL  25      /* max number of semaphores per identifier      */ 
+#define SEMOPM  10      /* max number of semaphore operations per system call */ 
+#define SEMUME  10      /* max number of undo structures per identifier */ 
+#define SEMVMX  32767                                                      
+#define SEMAEM  16384                                                      
+#endif                                                                     
+   
+#ifdef SHMEM                                                               
+#define SHMMAX  (2048L*1024) /* maximum shared memory segment size (bytes) */ 
+#define SHMMIN  1       /* minimum shared memory segment size (bytes)   */ 
+#define SHMMNI  20      /* max number of shared memory segments         */ 
+#define SHMSEG  3       /* max number of shared segments per user       */ 
+#define SHMBRK  100     /* shared memory break value (pages)            */ 
+#define SHMALL  1024    /* maximum shared memory allocated (pages)      */ 
+#else                                                                      
+#define SHMSEG 0                                                           
+#endif                                                                     
+    
+#ifdef FLOCK                                                               
+#define FLCKREC 200     /* record locking lock table size               */ 
+#define FLCKFIL 50      /* record locking file table size (for 5.2.2 locking)*/ 
+#endif
+
