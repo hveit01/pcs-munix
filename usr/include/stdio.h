@@ -1,5 +1,5 @@
 /*	@(#)stdio.h	2.7	*/
-#ifndef _NFILE                  # see if stdio.h already read in
+#ifndef _NFILE
 #define BUFSIZ  1024
 #define _NFILE  50
 /* buffer size for multi-character output to unbuffered files */
@@ -28,10 +28,8 @@ typedef struct {
 #define _IOLBF		0100
 #define _IORW		0200
 
-#define _IOSTRG 0100    /* to be deleted */
-
 #ifndef NULL
-#define NULL    ((char *)0)
+#define NULL    0L
 #endif
 #ifndef EOF
 #define	EOF	(-1)
@@ -41,7 +39,7 @@ typedef struct {
 #define stdout          (&_iob[1])
 #define stderr          (&_iob[2])
 
-/* UH: this should really be _bufendtab[(p)-stdio], for FILEs with same _file*/
+/* UH: this should really be _bufendtab[(p)-stdin], for FILEs with same _file*/
 #define _bufend(p)	_bufendtab[(p)->_file]
 #define _bufsiz(p)	(_bufend(p) - (p)->_base)
 
@@ -63,6 +61,11 @@ extern FILE	*fopen(), *fdopen(), *freopen(), *popen(), *tmpfile();
 extern long	ftell();
 extern void	rewind(), setbuf();
 extern char	*ctermid(), *cuserid(), *fgets(), *gets(), *tempnam(), *tmpnam();
+extern int	fclose(), fflush(), fread(), fwrite(), fseek(), fgetc(),
+		getw(), pclose(), printf(), fprintf(), sprintf(),
+		vprintf(), vfprintf(), vsprintf(), fputc(), putw(),
+		puts(), fputs(), scanf(), fscanf(), sscanf(),
+		setvbuf(), system(), ungetc();
 extern unsigned char *_bufendtab[];
 
 #define L_ctermid	9

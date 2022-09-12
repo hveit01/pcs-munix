@@ -1,16 +1,18 @@
 :
-# shellscript to help testing a new kernel 05-Sep-86
+#ident  @(#) /usr/sys/kernel.do
+#       shellscript to help testing a new kernel 05-Sep-86
+
 PATH=$PATH:/etc
 echo
 echo "T E S T I N G  of a new kernel: "
 echo
 echo "If you have a  W O R K I N G  /unix save it!"
 echo
-echo 'Do you want to save your working /unix in /ounix (y,n)? \c'
+echo 'Do you want to save your working /unix in /oldunix (y,n)? \c'
 read YN
 case $YN in
-    y|Y) echo "mv /unix /ounix"
-	 mv /unix /ounix;;
+    y|Y) echo "mv /unix /oldunix"
+	 mv /unix /oldunix;;
       *) ;;
 esac
 
@@ -33,9 +35,7 @@ case $YN in
 	 mv /newunix /unix
 	 echo '\nThe system will now be brought into Single User Mode'
 	 echo
-	 echo 'Please call /etc/sysboot when you are in Single User Mode'
-	 echo
 	 cd /
-	 shutdown.sh
+	 shutdown
 	 ;;
 esac

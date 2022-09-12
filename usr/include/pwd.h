@@ -18,6 +18,6 @@ struct comment {
 	char	*c_bin;
 };
 
-struct passwd *getpwent();
-struct passwd *getpwuid();
-struct passwd *getpwnam();
+extern struct passwd *getpwent();
+extern struct passwd *getpwuid();
+extern struct passwd *getpwnam();

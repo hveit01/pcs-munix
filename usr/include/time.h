@@ -14,6 +14,6 @@ struct	tm {	/* see ctime(3) */
 extern struct tm *gmtime(), *localtime();
 extern char *ctime(), *asctime();
 extern void tzset();
-extern long timezone;
+extern long timezone, altzone;
 extern int daylight;
 extern char *tzname[];

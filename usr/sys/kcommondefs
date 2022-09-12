@@ -1,0 +1,16 @@
+LANGUAGE=
+CFTIME=
+SHELL=/bin/sh
+KERN=/usr/sys
+INCLUDE=/usr/include
+INC=$(INCLUDE)/sys
+
+GCFLAGS=-I$(INCLUDE) -DKERNEL -DINKERNEL
+CFLAGS=$(LCFLAGS) $(GCFLAGS)
+
+.s.o:
+	/lib/cpp -P $(CFLAGS) $*.s >x.s
+	a68 x.s
+	mv x.o $*.o
+	rm x.s
+

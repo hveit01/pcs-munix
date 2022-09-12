@@ -1,4 +1,12 @@
-#ident	"@(#)curses:screen/maketerm.ed	1.9"
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+
+/* #ident  "@(#)curses:screen/maketerm.ed  1.28"*/
 /*
  * term.h - this file is automatically made from caps and maketerm.ed.
  * Don't make changes directly to term.h.
@@ -7,18 +15,6 @@
  */
 
 #ifndef auto_left_margin
-
-/*
-	WARNING!!!! This MUST match the definition in use
-	in curses.h.
-*/
-#ifndef _SUBWIN
-#ifdef	CHTYPE
-	typedef	CHTYPE chtype;
-#else
-	typedef unsigned short chtype;
-#endif /* CHTYPE */
-#endif /* _SUBWIN */
 
 #define auto_left_margin 		CUR _b1
 #define auto_right_margin 		CUR _b2
@@ -46,6 +42,7 @@
 #define hard_cursor 			CURB _hard_cursor
 #define non_rev_rmcup 			CURB _non_rev_rmcup
 #define no_pad_char 			CURB _no_pad_char
+#define non_dest_scroll_region 		CURB _non_dest_scroll_region
 #define columns 			CUR _c1
 #define init_tabs 			CUR _c2
 #define lines 				CUR _c3
@@ -57,6 +54,8 @@
 #define num_labels 			CURN _num_labels
 #define label_height 			CURN _labl_height
 #define label_width 			CURN _labl_width
+#define max_attributes 			CURN _max_attributes
+#define maximum_windows 		CURN _maximum_windows
 #define back_tab 			CUR _Vr2_Astrs._s1
 #define bell 				CUR _Vr2_Astrs._s2
 #define carriage_return 		CUR _Vr2_Astrs._s3
@@ -333,6 +332,30 @@
 #define key_sclear 			CURS strs3._ky_sclear
 #define key_sdown 			CURS strs3._ky_sdown
 #define key_sup 			CURS strs3._ky_sup
+#define label_format 			CURS strs3._labl_format
+#define set_clock 			CURS strs3._set_clock
+#define display_clock 			CURS strs3._display_clock
+#define remove_clock 			CURS strs3._remove_clock
+#define create_window 			CURS strs3._create_window
+#define goto_window 			CURS strs3._goto_window
+#define hangup 				CURS strs3._hangup
+#define dial_phone 			CURS strs3._dial_phone
+#define quick_dial 			CURS strs3._quick_dial
+#define tone 				CURS strs3._tone
+#define pulse 				CURS strs3._pulse
+#define flash_hook 			CURS strs3._flash_hook
+#define fixed_pause 			CURS strs3._fixed_pause
+#define wait_tone 			CURS strs3._wait_tone
+#define user0 				CURS strs3._user0
+#define user1 				CURS strs3._user1
+#define user2 				CURS strs3._user2
+#define user3 				CURS strs3._user3
+#define user4 				CURS strs3._user4
+#define user5 				CURS strs3._user5
+#define user6 				CURS strs3._user6
+#define user7 				CURS strs3._user7
+#define user8 				CURS strs3._user8
+#define user9 				CURS strs3._user9
 
 typedef char *charptr;
 struct strs {
@@ -621,6 +644,30 @@ struct strs3 {
 	_ky_sclear,		/* KEY_SCLEAR, 0631, shifted clear key */
 	_ky_sdown,		/* KEY_SDOWN, 0632, shifted down arrow key */
 	_ky_sup,		/* KEY_SUP, 0633, shifted up arrow key */
+	_labl_format,		/* Label format */
+	_set_clock,		/* Set time-of-day clock */
+	_display_clock,		/* Display time-of-day clock */
+	_remove_clock,		/* Remove time-of-day clock */
+	_create_window,		/* Define win #1 to go from #2,#3 to #4,#5 */
+	_goto_window,		/* Got to window #1 */
+	_hangup,		/* Hang-up phone */
+	_dial_phone,		/* Dial phone number #1 */
+	_quick_dial,		/* Dial phone number #1, without progress detection */
+	_tone,			/* Select touch tone dialing */
+	_pulse,			/* Select pulse dialing */
+	_flash_hook,		/* Flash the switch hook */
+	_fixed_pause,		/* Pause for 2-3 seconds */
+	_wait_tone,		/* Wait for dial tone */
+	_user0,			/* User string 0 */
+	_user1,			/* User string 1 */
+	_user2,			/* User string 2 */
+	_user3,			/* User string 3 */
+	_user4,			/* User string 4 */
+	_user5,			/* User string 5 */
+	_user6,			/* User string 6 */
+	_user7,			/* User string 7 */
+	_user8,			/* User string 8 */
+	_user9,			/* User string 9 */
 	Sentinel;		/* End of strings. DO NOT MOVE! */
 };
 
@@ -652,6 +699,7 @@ struct _bool_struct {
 	_hard_cursor,		/* Cursor is hard to see. */
 	_non_rev_rmcup,		/* Smcup does not reverse rmcup. */
 	_no_pad_char,		/* Pad character doesn't exist. */
+	_non_dest_scroll_region,/* Scrolling region is non-destructive. */
 	Sentinel;		/* End of bools. DO NOT MOVE! */
 };
 
@@ -668,6 +716,8 @@ struct _num_struct {
 	_num_labels,		/* # of labels on screen (start at 1) */
 	_labl_height,		/* # rows in each label */
 	_labl_width,		/* # cols in each label */
+	_max_attributes,	/* max combined video attributes terminal can display */
+	_maximum_windows,	/* Maximum number of defineable windows */
 	Sentinel;		/* End of nums. DO NOT MOVE! */
 };
 
@@ -677,11 +727,19 @@ struct _str_struct {
 	struct strs3 strs3;
 };
 
+#define NUM_ATTRIBUTES	9
+#define	UNACCESSIBLE		1
+#define	NO_TERMINAL		2
+#define CORRUPTED		3
+#define	ENTRY_TOO_LONG		4
+#define	TERMINFO_TOO_LONG	5
+#define	TERM_BAD_MALLOC		6
+#define NOT_READABLE		7
 #define _VR2_COMPAT_CODE
 #ifdef _VR2_COMPAT_CODE
 struct _Vr2_Astrs {
     charptr
-	_s1, _s2, _s3, _s4, _s5, _s6, _s7, _s8, _s9, _s10,
+	_s1,  _s2,  _s3,  _s4,  _s5,  _s6,  _s7,  _s8,  _s9,  _s10,
 	_s11, _s12, _s13, _s14, _s15, _s16, _s17, _s18, _s19, _s20,
 	_s21, _s22, _s23, _s24, _s25, _s26, _s27, _s28, _s29, _s30,
 	_s31, _s32, _s33, _s34, _s35, _s36, _s37, _s38, _s39, _s40,
@@ -703,6 +761,11 @@ struct _Vr2_Bstrs {
 };
 #endif /* _VR2_COMPAT_CODE */
 
+typedef struct {
+	char *_sends;	/* Characters sent when key is pressed */
+	short _keyval;	/* "char" we pass back to program */
+} _KEY_MAP;
+
 /*
  * This definition for the term struct allows the boolean, number
  * and string information to grow in the future and still allow .o
@@ -712,7 +775,7 @@ struct _Vr2_Bstrs {
 struct term {
 #ifdef _VR2_COMPAT_CODE
     char
-	_b1, _b2, _b3, _b4, _b5, _b6, _b7, _b8, _b9, _b10,
+	_b1,  _b2,  _b3,  _b4,  _b5,  _b6,  _b7,  _b8,  _b9,  _b10,
 	_b11, _b12, _b13, _b14, _b15, _b16, _b17, _b18, _b19, _b20, _b21;
     short
 	_c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8;
@@ -720,30 +783,59 @@ struct term {
 	struct _Vr2_Bstrs _Vr2_Bstrs;
 #endif /* _VR2_COMPAT_CODE */
 	short Filedes;		/* file descriptor being written to */
-#ifndef NONSTANDARD
 	SGTTY Ottyb,		/* original state of the terminal */
 	      Nttyb;		/* current state of the terminal */
-#endif
 #ifdef DIOCSETT
 	struct termcb new, old;	/* CB/UNIX virtual terminals */
 #endif
-#ifdef CULTILDE
+#ifdef LTILDE
 	int newlmode, oldlmode;	/* BSD tty driver */
 #endif
+	/* end of Vr2 structure */
 	struct _bool_struct *_bools;
 	struct _num_struct *_nums;
 	struct _str_struct *_strs;
 	char *_strtab;
-	chtype sgr_mode;	/* current physical graphic rendition */
-	chtype sgr_faked;	/* attributes faked by vidputs */
-	char rmul_rmso_neq;	/* rmul != rmso */
-	char rmul_sgr0_neq;	/* rmul != sgr0 */
-	char rmacs_sgr0_neq;	/* rmacs != sgr0 */
-	char rmacs_rmso_neq;	/* rmacs != rmso */
-	char rmso_sgr0_neq;	/* rmso != sgr0 */
 #ifdef FIONREAD
-	long timeout;		/* for BSD halfdelay mode */
+	long _timeout;           /*PCS:'_' ! for BSD halfdelay mode */
 #endif
+	/* end of Vr3 structure */
+	chtype sgr_mode;		/* current phys. graphic rendition */
+	chtype sgr_faked;		/* attributes faked by vidputs */
+	int    _delay;			/* timeout for inputs */
+	int    _inputfd;		/* input file descriptor */
+	int    _check_fd;		/* typeahead file descriptor */
+	_KEY_MAP	**_keys,	/* key map */
+			*internal_keys;	/* pointer to free key structures */
+	short		_ksz,		/* size of keymap */
+			_lastkey_ordered,/* where the last ordered key is */
+			_lastmacro_ordered,/* where the last ordered macro is */
+			_first_macro;
+	bool				/* map of which chars start fn keys */
+			funckeystarter[0400];	
+	bool		_fl_rawmode,	/* in cbreak(=1) or raw(=2) mode */
+			fl_typeahdok,	/* ok to use typeahead */
+			_cursorstate,	/* cursor: 0=invis, 1=norm, 2=vvis */
+			_iwait;		/* true if input-pending */
+	short		_regs[26];	/* tparm static registers */
+#define INP_QSIZE	32
+	short				/* a place to put stuff ungetch'ed */
+			_input_queue[INP_QSIZE],
+			_ungotten;	/* # chars ungotten by ungetch() */
+	char		_chars_on_queue; /* # chars on queue */
+#ifdef _VR3_COMPAT_CODE
+	_ochtype	*_acsmap;
+	chtype		*_acs32map;	/* map of alternate char set chars */
+#else /* _VR3_COMPAT_CODE */
+	chtype		*_acsmap;	/* map of alternate char set chars */
+#endif /* _VR3_COMPAT_CODE */
+	char		*turn_on_seq[NUM_ATTRIBUTES];
+	chtype		bit_vector;
+	char		*cursor_seq[3];
+	char		_termname[15];
+	char		*turn_off_seq[3];
+	chtype		check_turn_off;
+	chtype		non_faked_mode;
 };
 
 typedef struct term TERMINAL;
@@ -752,12 +844,10 @@ typedef struct term TERMINAL;
 #define beehive_glitch	no_esc_ctlc
 #define teleray_glitch	dest_tabs_magic_smso
 
-#ifndef NONSTANDARD
 extern TERMINAL			*cur_term;
 extern struct _bool_struct	*cur_bools;
 extern struct _num_struct	*cur_nums;
 extern struct _str_struct	*cur_strs;
-#endif
 
 #ifdef SINGLE
 extern TERMINAL			_first_term;
@@ -780,11 +870,29 @@ extern struct _str_struct	_frst_strs;
 # define SHELLTTY		(cur_term->Ottyb)
 #endif
  
-extern TERMINAL *set_curterm(/* TERMINAL *newterminal */);
-extern int del_curterm(/* TERMINAL *oldterminal */);
+extern	chtype		termattrs();
+extern	TERMINAL	*setcurterm(/* TERMINAL *newterminal */);
 
-extern char	*tparm(), *tgoto(), *tgetstr(), *tigetstr();
-extern char	*boolnames[], *boolcodes[], *boolfnames[],
+#ifdef	_VR3_COMPAT_CODE
+extern	TERMINAL	*set_curterm(/* TERMINAL *newterminal */);
+#endif	/* _VR3_COMPAT_CODE */
+
+#ifndef NOMACROS
+#define del_curterm	delterm
+#define set_curterm	setcurterm
+#endif /* NOMACROS */
+
+extern	short	term_errno;
+
+extern	char	*tparm(), *tgoto(), *tgetstr(), *tigetstr(),
+		term_parm_err[], *term_err_strings[], *Def_term, *termname();
+extern	char	*boolnames[], *boolcodes[], *boolfnames[],
 		*numnames[], *numcodes[], *numfnames[],
 		*strnames[], *strcodes[], *strfnames[];
+extern	int	tputs(), putp(), vidputs(), vidattr();
+
+extern	int	resetterm(), fixterm(), saveterm(), restartterm(), del_curterm(),
+		delterm();
+
+extern	void	termerr(), tinputfd();
 #endif /* auto_left_margin */

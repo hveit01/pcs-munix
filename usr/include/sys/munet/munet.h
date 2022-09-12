@@ -45,7 +45,9 @@
 #define UIBPDATA	12	/* Pass in bpdata structures for dlsupport */
 #define UIOMITAB	13	/* Get internal inode table for onmaster */
 #define UIGROUTE	14	/* Munge gateway entries in routing table */
+#ifdef ONMASTER
 #define UIOCMINO	15	/* Build master inode list */
+#endif
 #define UIGETPORT       16      /* Set input port number and put up read ahead */
 #define UICLOSEPORT     17      /* Close input port */
 #define UIWTSW          18      /* Process packet to be transmitted */
@@ -60,6 +62,8 @@
 #define UINDINFO        25      /* get info about nodes                 */
 #define UIVERS          26      /* get node version number              */
 #define UINETTIME       27      /* get network standard time            */
+#define UIPSARGS        28      /* set receiver arguments for ps        */
+#define UIUNITE		29	/* read in mapping informations		*/
 
 /*
  * Format of a complete MUNIX/NET packet as it exists on the lan
@@ -144,9 +148,8 @@ struct upt_info {                       /* used with uidoit call UIGETPORT */
 
 
 /* definition of bits in pt_flag field */
-#define	RTHERE 		01		/* remote machine is there */
-#define	WTHERE 		02		/* remote machine was there */
-
+#define	RTHERE 		0x0001		/* remote machine is there */
+#define	WTHERE 		0x0002		/* remote machine was there */
 
 /*
  * Miscellaneous details.
@@ -166,7 +169,7 @@ extern enetaddr noname;			/* ethernet address for no one */
 #define bufmaj(buf) (bufdev(buf) >> 8)	/* same as bufdev but for indexing */
 #define FILE_IS_REMOTE(x)       ((x->i_flag & ILAND) != 0)      /* true if remote file */
 #define FILE_IS_LOCAL(x)        ((x->i_flag & ILAND) == 0)      /* true if local file */
-#define LAN_DEV(x)              x->i_mount->m_dev               /* minor device number of lan special file where x is mounted on */
+#define LAN_DEV(x)              x->i_mnton->m_dev               /* minor device number of lan special file where x is mounted on */
 #define BREAK_ON_ERROR          if (u.u_error != 0) { suword(&upkptr->uu_error,u.u_error);break;}
 #define INC_SEQN(x)     if (++x == 65535 ) x = 1        /* increment sequence number */
 /* flag parameter in uisend */
@@ -200,4 +203,5 @@ extern enetaddr noname;			/* ethernet address for no one */
 #define XPERROR	0x0002	/* xmit port error flag */
 #define XPDONE	0x0004	/* xmit port completed transmission */
 #define XPTIMEO	0x0008	/* xmit port has run out of time */
+#define XPNOSLP 0x0010  /* don't wakeup, we don't sleep */
 

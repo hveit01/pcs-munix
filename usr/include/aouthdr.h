@@ -1,4 +1,4 @@
-#ident	"@(#)head:aouthdr.h	2.6"
+ /* #ident  "@(#)head:aouthdr.h     2.6" */
 
 typedef	struct aouthdr {
 	short	magic;		/* see magic.h				*/

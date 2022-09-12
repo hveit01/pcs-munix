@@ -22,8 +22,9 @@
 #define ARPA_SOCKET	8
 #define ARPA_PROT	9
 #define ARPA_MGMT	10
-
-#define MAX_ID          10
+#define MSVA            11
+#define MSVB            12
+#define MAX_ID          12
 #define NUM_SCSI_IDS	3
 
 /* Message: number of (long) parameters. The maximum number is limited by
@@ -80,18 +81,20 @@ typedef	struct {
 	UNIX_MESSAGE rr;
 	UNIX_MESSAGE tr;
 	CON_DEVICE con_reg;
-	short rr_val;
-	short tr_val;
-	short tr_empty;
+	ABORT_MESSAGE abo_msg;
+	UNIX_MESSAGE *first, *last;
 	short *icc_cr0;
 	short *icc_cr1;
 	short *icc_cr2;
 	short *icc_setint;
-	UNIX_MESSAGE *first, *last;
-	ABORT_MESSAGE abo_msg;
+	short rr_val;
+	short tr_val;
+	short tr_empty;
+	short dummy1;
 	char version[40];
 	short owner_flag;      /* in new version we're polling on icc side */
 			       /* on this flag instead of waiting on       */
 			       /* tr_empty (to avoid too fast interrupts). */
+	short dummy2;
 } ICC_DES;
 #endif

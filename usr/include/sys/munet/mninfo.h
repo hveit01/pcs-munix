@@ -1,4 +1,4 @@
-/* @(#) mninfo.h        1.1     Aug 01 1986    */
+/* @(#) mninfo.h        1.2     Mar 28 1988    */
 
 /*
  *  Include file for MUNIX/NET - information
@@ -8,7 +8,7 @@
 
 struct munetinfo {
 	short  mi_flags;                /* state of this info */
-	short  mi_remport[UIMAXNODES];  /* port number of remote child receiver */
+	short  *mi_remport;            /* port numbers of remote child receiver */
 	struct mnport *mi_uport;        /* port accessible from the user level */
 	struct mnport *mi_kport;        /* port accessible from the kernel only */
 	struct munetinfo *mi_next;      /* to construct linked lists */
@@ -18,6 +18,7 @@ struct munetinfo {
 /* MUNIX/NET-informations: */
 
 extern struct munetinfo m_info[];       /* MUNIX/NET infos (one per process) */
+extern short mi_ptnos[];                /* all port numbers of remote child receivers (space.h) */
 struct munetinfo *freeminfos;           /* list of free infos */
 
 

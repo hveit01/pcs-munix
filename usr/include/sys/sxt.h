@@ -1,14 +1,21 @@
-/*	<@(#)sxt.h	6.2>	*/
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
 
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/sxt.h	10.2"*/
 /*
  **	Multiplexed channels driver header
  */
 
-#define	SXTRACE		0		/* 1 to include tracing */
+#define SXTRACE         0               /* 1 to include tracing */
 
 #define	MAXLINKS	32
 #define	CHAN(dev)	(dev&CHANMASK)
 #define	LINK(dev)	((dev>>CHANBITS)&(0xff>>CHANBITS))
+ 
 
 #if	(MAXPCHAN*MAXLINKS) > 256
 	ERROR -- product cannot be greater than minor(dev)
@@ -35,7 +42,7 @@ struct Link
 	char		wpending;	/* pending writes/channel */
 	char		iblocked;	/* channels blocked for input */
 	char		oblocked;	/* channels blocked for output*/
-	char		lwchan;		/* Last channel written bit */
+	short		lwchan;		/* Last channel written bit */
 	char		wrcnt;		/* Number of writes on last channel written */
 	dev_t		dev;		/* major and minor device # */
 	struct Channel	chans[1];	/* Array of channels for this link */

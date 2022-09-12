@@ -5,7 +5,8 @@
 /*	The copyright notice above does not evidence any   	*/
 /*	actual or intended publication of such source code.	*/
 
-#ident "@(#)kern-3b2:sys/uadmin.h	1.3"
+/*#ident	"@(#)kern-port:sys/uadmin.h	10.2"*/
+
 #define	A_REBOOT	1
 #define	A_SHUTDOWN	2
 #define	A_REMOUNT	4

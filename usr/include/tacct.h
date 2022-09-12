@@ -1,4 +1,11 @@
-/*	@(#)tacct.h	1.2 of 3/31/82	*/
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/* #ident  "@(#)/usr/src/uv5.31/cmd/acct:tacct.h       1.3"     */
 /*
  *	total accounting (for acct period), also for day
  */

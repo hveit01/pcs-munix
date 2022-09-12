@@ -9,6 +9,8 @@ struct  ifop    {
 };
 
 #define IF_FORMAT	1
+#define IF_SWAP         2
+#define IF_NOSWAP       3
 #define IF_ERRREPORT	20
 #define IF_ERRCLEAR	21
 

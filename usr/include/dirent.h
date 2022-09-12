@@ -5,7 +5,7 @@
 /*	The copyright notice above does not evidence any   	*/
 /*	actual or intended publication of such source code.	*/
 
-#ident	"@(#)head:dirent.h	1.1"
+ /* #ident  "@(#)head:dirent.h      1.1" */
 
 
 #define MAXNAMLEN	512		/* maximum filename length */

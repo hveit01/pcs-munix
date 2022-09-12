@@ -1,0 +1,11 @@
+
+#ident "@(#) RELEASE:  1.0  Dec 16 1987 /usr/src/uv5.31/cmd/date/* "
+
+Von PCS werden standardmaessig folgende sprachspezifische Tabellen
+ausgeliefert:
+
+	/lib/cftime/german
+	/lib/cftime/english
+
+Naehere Informationen zur Erstellung sprachspezifischer Tabellen
+siehe man-Seite ctime(3C).

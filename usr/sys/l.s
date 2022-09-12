@@ -1,31 +1,42 @@
-|  @(#) RELEASE:  1.6  Nov 17 1986 /usr/sys/l.s ";
+|  @(#) RELEASE:  2.2  Nov 10 1988 /usr/sys/l.s ";
 |
+|  2.2 CGP vectors sorted
+|  2.1 CGS4600 first kbd intr with wrong vec
+|  2.0 CGS4600->CGP
+|  1.9 new interrupt vectors for COL
+|      14c sccint1, 158 sccint2
+|  1.8 new interrupt vectors for CGS4600
+|  1.7 MSV interrupt vectors
 |  1.6 SDLC interrupt vectors (IBM-3274)
-|  1.5 3 vectors for first COL, 144 sccint, 148 buttonint, 14C vsint
-|      reserve 3 vectors for 2nd COL, 154 sccint, 158 buttonint, 162 vsint
+|  1.5 3 vectors for first COL, 144 sccint1, 148 buttonint, 14C vsint
+|      reserve 3 vectors for 2nd COL, 154 sccint2, 158 buttonint, 162 vsint
 |  1.4 icc0 to icc3, moved mfp and COL
 |  1.3 RJE interrupt vectors (DQS)
 |  1.2 bmt anstelle von bip
 |  1.1 X25 interrupt vectors
 |
 #include "conf.h"
-	.globl  __entry
+	.globl  __entry,_btext,_bdata
 	.globl  _eaintr,_trap,initcode,_dump
-	.globl  _sbrpte,__pcr
+	.globl  _sbrpte
 	.globl  minitor
-	.extern __ccr
+	.extern __ccr,__esr
 	.extern f_handler,f_mvem        | for motorola ieee fp software
+	.extern _bmt_newmode
+	. =     0
 
-#ifdef DQS
+#if defined(DQS) || defined(MSV1)
 	.globl _start_of_text
 #endif
 
-	. =     0
 
-#ifdef DQS
+	.data
+_bdata= .
+	.text
+_btext= .
+#if defined(DQS) || defined(MSV1)
 _start_of_text:
 #endif
-
 	bra     __entry                 |       0
 	bra     dump                    |       1
 	.long   buserror                |       2
@@ -84,7 +95,7 @@ _start_of_text:
 	.long   fpex            | Signaling NAN                         54
 |
 usertrap = .
-#if defined(IW) || defined(IS) || defined (IF) || defined(ICC_SCC) || defined(ICC_TCPIP)
+#if defined(IW) || defined(IS) || defined (IF) || defined(ICC_SCC) || defined(SOCKET) || defined(MSV1)
 	. = 0x104               | 0101
 	.long	icc0_rint
 	.long   icc0_xint
@@ -102,15 +113,27 @@ usertrap = .
 	.long   icc3_xint
 	.long	icc3_init
 #endif
+#ifdef CGP
+|       first controller at Qbus address #200000; Q management intr
+	. = 0x140               |
+	.long   fx0cgi          |0120
+	.long   fx0kb           |0121
+	.long   fx0vt           |0122
+#endif
 #ifdef  COL
-	. =     0x144           |0121
-	.long   sccint1         |       J.D SCC interrupt
-	.long   buttonint1      |       J.D Mouse-Button interrupt
-	.long   vsint1          |       J.D Vsync. interrupt
-	. =     0x154           |0121
-	.long	sccint2		|	J.D SCC interrupt
-	.long	buttonint2	|	J.D Mouse-Button interrupt
-	.long	vsint2		| 	J.D Vsync. interrupt
+	. =     0x14c           |
+	.long   sccint1         |0123   J.D SCC interrupt
+	.long   buttonint1      |0124   J.D Mouse-Button interrupt
+	.long   vsint1          |0125   J.D Vsync. interrupt
+	. =     0x158           |
+	.long   sccint2         |0126   J.D SCC interrupt
+	.long   buttonint2      |0127   J.D Mouse-Button interrupt
+	.long   vsint2          |0128   J.D Vsync. interrupt
+#else
+#ifdef CGP
+	.=      0x150           |       BL ->calcomp kbd intr
+	.long   fx0kb
+#endif
 #endif
 #ifdef BIP
 #define BIPVEC  0x16c
@@ -120,6 +143,13 @@ usertrap = .
 	.long   bmt_intr1
 	.long   bmt_intr2
 	.long   bmt_intr3
+#endif
+#if defined(CGP) && NCGP > 1
+|       second controller at Qbus address #240000 (CGI)
+	. = 0x180                |
+	.long   fx1cgi          |0140
+	.long   fx1kb           |0141
+	.long   fx1vt           |0142
 #endif
 #ifdef DQS
 	.globl  _dqs0_vec, _dqs1_vec, _dqs2_vec, _dqs3_vec,
@@ -140,6 +170,13 @@ _dqs3_vec:
 	. =     0x1a0           | 0150  same as dqs1
 	.long	hk2intr
 #endif
+#if defined(CGP) && NCGP > 2
+|       third controller at Qbus address #280000 (CGI)
+	. = 0x1c0                |
+	.long   fx2cgi          |0160
+	.long   fx2kb           |0161
+	.long   fx2vt           |0162
+#endif
 	. = 0x1e8
 	.long   mfpxint         | mfp transmit interrupt
 	.long   mfperrint       | mfp rx error interrupt
@@ -149,19 +186,35 @@ _dqs3_vec:
 	. = 0x200               | 0200
 	.long	lpintr
 #endif
+#ifdef KD
+	. = 0x204               | 0201
+	.long   mkvintr
+	.long   mkvintr
+#endif
+#ifdef ZIP
+	. = 0x20c               | 0203
+	.long   zipintr
+#endif
 #ifdef  HK
 	. =     0x220           | 0210
 	.long   hkintr
+#endif
+#ifdef  MSV1
+	.globl	_msv_vector_entry
+	.=	0x224		| 0211
+_msv_vector_entry:
+	.long	msv_intr0
+	.long	msv_intr1
 #endif
 #if TS
 	. = 0x250               | 0224
 	.long	tapeintr
 #endif
 #ifdef  SDLC
-	. =     0x284           | 0241
-	.long   sdlcint
-	. =     0x288           | 0242
-	.long   sdlcfatal
+	. =	0x284           | 0241
+	.long	sdlcint
+	. =	0x288           | 0242
+	.long	sdlcfatal
 #endif
 #ifdef X25
 	. = 0x28c		|0243
@@ -227,7 +280,8 @@ init1:	addql	#4,a0
 	blts    init0
 	jmp	initcode
 |
-dump:   jsr     _dump
+dump:   clrw    _bmt_newmode
+	jsr     _dump
 	bra     __entry
 |
 except: moveml  #0xfffe,a7@-
@@ -240,9 +294,11 @@ except: moveml  #0xfffe,a7@-
 	rts
 |
 buserror:
-	movl    #2,a7@-
+	movw    __esr,a7@-
+	clrw    a7@-
+	movl    #-2,a7@-
 bus0:	bsr	except
-	addql   #4,a7
+	addql   #8,a7
 	tstw    a7@(6)                  | * stacktype = 0 ?
 	beqs    bus2
 	rte                             | rte with restart
@@ -258,12 +314,13 @@ bus3:   movl    a7@,a7@(84)             | * copy ps,pc,stacktype to start of fra
 	rte                             | rte without restart
 |
 addresserror:
-	movl    #3,a7@-
+	clrl    a7@-
+	movl    #-3,a7@-
 	bras    bus0
 |
 exnorm:	bsr	except
 	addql   #4,a7
-	movl    #0xffc0fc00,0x3ffc9000
+|       movl    #0xffc0fc00,0x3ffc9000
 	rte
 |
 illegalopcode = .
@@ -310,11 +367,11 @@ trapold:movl    #45,a7@-
 	bras    exnorm
 |                       68020 system calls
 trapnew:movl    #46,a7@-
-	bra     exnorm
+	bras    exnorm
 |
 spurious = .
 	movl    #24,a7@-
-	bra     exnorm
+	bras    exnorm
 coprocviol = .
 	movl    #13,a7@-
 	bra     exnorm
@@ -340,8 +397,12 @@ interrupt6 = .
 	movl    #30,a7@-
 	bra     exnorm
 interrupt7 = .
-	movl    #31,a7@-
-	bra     exnorm
+	movw    __esr,a7@-
+	clrw    a7@-
+	movl    #-31,a7@-
+	bsr     except
+	addql   #8,a7
+	rte
 |
 e_handler = .
 	movl    #10,a7@-
@@ -358,7 +419,7 @@ eaint:  moveml  #0xfffe,a7@-
 	movec   a0,usp
 	moveml  a7@+,#0x7fff
 	addql   #8,a7
-	movl    #0xffc0fc00,0x3ffc9000
+|       movl    #0xffc0fc00,0x3ffc9000
 	rte
 |
 	.globl  _mfprint
@@ -390,6 +451,49 @@ hk2intr:clrl    a7@-
 swintr: clrl    a7@-
 	movl    #_swintr,a7@-
 	bra     eaint
+#endif
+#ifdef CGP
+	.extern _fx_cgi, _fx_kb, _fx_vt
+fx0cgi:
+	clrl    a7@-
+	movl    #_fx_cgi,a7@-
+	bra     eaint
+fx0kb:
+	clrl    a7@-
+	movl    #_fx_kb,a7@-
+	bra     eaint
+fx0vt:
+	clrl    a7@-
+	movl    #_fx_vt,a7@-
+	bra     eaint
+#if NCGP > 1
+fx1cgi:
+	movl    #1,a7@-
+	movl    #_fx_cgi,a7@-
+	bra     eaint
+fx1kb:
+	movl    #1,a7@-
+	movl    #_fx_kb,a7@-
+	bra     eaint
+fx1vt:
+	movl    #1,a7@-
+	movl    #_fx_vt,a7@-
+	bra     eaint
+#if NCGP > 2
+fx2cgi:
+	movl    #2,a7@-
+	movl    #_fx_cgi,a7@-
+	bra     eaint
+fx2kb:
+	movl    #2,a7@-
+	movl    #_fx_kb,a7@-
+	bra     eaint
+fx2vt:
+	movl    #2,a7@-
+	movl    #_fx_vt,a7@-
+	bra     eaint
+#endif
+#endif
 #endif
 #ifdef  SW2
 	.extern _sw2intr
@@ -462,7 +566,7 @@ sccint2: movl   #1,a7@-
 	movl    #_sccintr,a7@-
 	bra	eaint
 #endif
-#if defined(IW) || defined(IS) || defined (IF) || defined(ICC_SCC) || defined(ICC_TCPIP)
+#if defined(IW) || defined(IS) || defined(IF) || defined(ICC_SCC) || defined(SOCKET)
 	.extern _icc_rint
 	.extern _icc_xint
 	.extern _icc_init_done
@@ -549,6 +653,12 @@ lp2intr:movl    #1,a7@-
 	bra	eaint
 #endif
 #endif
+#ifdef KD
+	.extern _mkvintr
+mkvintr:clrl    a7@-
+	movl #_mkvintr,a7@-
+	bra     eaint
+#endif
 #ifdef X25
 	 .extern  _x25intr
 x25int0:  clrl  a7@-
@@ -571,4 +681,21 @@ sdlcfatal:
 	clrl  a7@-
 	movl #_sdlcfatal,a7@-
 	bra    eaint
+#endif
+#ifdef MSV1
+	.extern _msv_event_intr
+msv_intr0:
+	clrl	a7@-
+	pea	_msv_event_intr
+	bra	eaint
+msv_intr1:
+	pea	1
+	pea	_msv_event_intr
+	bra	eaint
+#endif
+#ifdef ZIP
+	.extern _zipintr
+zipintr:clrl    a7@-
+	pea     _zipintr
+	bra     eaint
 #endif

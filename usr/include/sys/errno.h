@@ -1,4 +1,11 @@
-/* @(#)errno.h	6.2 */
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/errno.h	10.7"*/
 /*
  * Error codes
  */
@@ -47,13 +54,59 @@
 #define	EUNATCH 42	/* Protocol driver not attached		*/
 #define	ENOCSI	43	/* No CSI structure available		*/
 #define	EL2HLT	44	/* Level 2 halted			*/
-#define	ENOSWP	45	/* Out of swap space			*/
-#define	EXPATH	46	/* Path continues onto another machine	*/
-#define EXREDO  47      /* MUNIX/NET request for a retry        */
-#define EDEADLK 48      /* Record locking deadlock              */
-#define ENOUARP	49	/* Could not resolve IP addr, host down */
-#define ENOUGW	50	/* No available gateway in route table	*/
-#define ELOOP   51      /* symbolic links form endless loop     */
+#define	EDEADLK	45	/* Deadlock condition.			*/
+#define	ENOLCK	46	/* No record locks available.		*/
+
+#define ENOSWP  47      /* Out of swap space                    */
+#define EXPATH  46      /* Path continues onto another machine  */
+			/* the exact number is if no special    */
+			/* importance                           */
+#define EXREDO  49      /* MUNIX/NET request for a retry        */
+#define ENOUARP 57      /* Could not resolve IP addr, host down */
+#define ENOUGW  58      /* No available gateway in route table  */
+#define ELOOP   59      /* symbolic links form endless loop     */
+
+/* Convergent Error Returns */
+#define EBADE	50	/* invalid exchange			*/
+#define EBADR	51	/* invalid request descriptor		*/
+#define EXFULL	52	/* exchange full			*/
+#define ENOANO	53	/* no anode				*/
+#define EBADRQC	54	/* invalid request code			*/
+#define EBADSLT	55	/* invalid slot				*/
+#define EDEADLOCK 56	/* file locking deadlock error		*/
+
+#define EBFONT	57	/* bad font file fmt			*/
+
+/* stream problems */
+#define ENOSTR	60	/* Device not a stream			*/
+#define ENODATA	61	/* no data (for no delay io)		*/
+#define ETIME	62	/* timer expired			*/
+#define ENOSR	63	/* out of streams resources		*/
+
+#define ENONET	64	/* Machine is not on the network	*/
+#define ENOPKG	65	/* Package not installed                */
+#define EREMOTE	66	/* The object is remote			*/
+#define ENOLINK	67	/* the link has been severed */
+#define EADV	68	/* advertise error */
+#define ESRMNT	69	/* srmount error */
+
+#define	ECOMM	70	/* Communication error on send		*/
+#define EPROTO	71	/* Protocol error			*/
+#define	EMULTIHOP 74	/* multihop attempted */
+#define	ELBIN	75	/* Inode is remote (not really error)*/
+#define	EDOTDOT 76	/* Cross mount point (not really error)*/
+#define EBADMSG 77	/* trying to read unreadable message	*/
+
+#define ENOTUNIQ 80	/* given log. name not unique */
+#define EBADFD	 81	/* f.d. invalid for this operation */
+#define EREMCHG	 82	/* Remote address changed */
+
+/* shared library problems */
+#define ELIBACC	83	/* Can't access a needed shared lib.	*/
+#define ELIBBAD	84	/* Accessing a corrupted shared lib.	*/
+#define ELIBSCN	85	/* .lib section in a.out corrupted.	*/
+#define ELIBMAX	86	/* Attempting to link in too many libs.	*/
+#define ELIBEXEC	87	/* Attempting to exec a shared library.	*/
 #define EXSYMPATH 99    /* symbolic link to another machine	*/
 
 
@@ -72,7 +125,7 @@
 #define EDESTADDRREQ    139             /* Destination address required */
 #define EMSGSIZE        140             /* Message too long */
 #define EPROTOTYPE      141             /* Protocol wrong type for socket */
-#define ENOPROTOOPT     142             /* Protocol not available */
+#define ENOPROTOOPT     142             /* Option not supported by protocol */
 #define EPROTONOSUPPORT 143             /* Protocol not supported */
 #define ESOCKTNOSUPPORT 144             /* Socket type not supported */
 #define EOPNOTSUPP      145             /* Operation not supported on socket */
@@ -99,5 +152,3 @@
 #define EHOSTDOWN       164             /* Host is down */
 #define EHOSTUNREACH    165             /* No route to host */
 #define ENOTEMPTY       166             /* Directory not empty */
-
-

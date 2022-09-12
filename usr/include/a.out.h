@@ -1,4 +1,4 @@
-#ident	"@(#)head:a.out.h	2.12"
+ /* #ident  "@(#)head:a.out.h       2.12"  */
 
 #include <nlist.h>	/* included for all machines */
 

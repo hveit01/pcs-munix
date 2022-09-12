@@ -1,13 +1,21 @@
-/*	@(#)regexp.h	1.2	*/
-/*	3.0 SID #	1.3	*/
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident  "@(#)head:regexp.h      1.4.1.2"      */
 #define	CBRA	2
 #define	CCHR	4
 #define	CDOT	8
 #define	CCL	12
+#define	CXCL	16
 #define	CDOL	20
 #define	CCEOF	22
 #define	CKET	24
 #define	CBACK	36
+#define NCCL	40
 
 #define	STAR	01
 #define RNGE	03
@@ -20,7 +28,6 @@
 
 static char	*braslist[NBRA];
 static char	*braelist[NBRA];
-static int	ebra;
 int	sed, nbra;
 char	*loc1, *loc2, *locs;
 static int	nodelim;
@@ -46,6 +53,7 @@ char *instring, *endbuf;
 	int neg;
 	int lc;
 	int i, cflg;
+	int iflag; /* used for non-ascii characters in brackets */
 
 	lastep = 0;
 	if((c = GETC()) == eof || c == '\n') {
@@ -58,7 +66,7 @@ char *instring, *endbuf;
 		RETURN(ep);
 	}
 	bracketp = bracket;
-	circf = closed = nbra = ebra = 0;
+	circf = closed = nbra = 0;
 	if(c == '^')
 		circf++;
 	else
@@ -71,6 +79,8 @@ char *instring, *endbuf;
 			lastep = ep;
 		if(c == eof) {
 			*ep++ = CCEOF;
+			if (bracketp != bracket)
+				ERROR(42);
 			RETURN(ep);
 		}
 		switch(c) {
@@ -84,6 +94,8 @@ char *instring, *endbuf;
 				UNGETC(c);
 				*ep++ = CCEOF;
 				nodelim = 1;
+				if(bracketp != bracket)
+					ERROR(42);
 				RETURN(ep);
 			}
 			else ERROR(36);
@@ -113,16 +125,33 @@ char *instring, *endbuf;
 				neg = 1;
 				c = GETC();
 			}
-
+			iflag = 1;
 			do {
+				c &= 0377;
 				if(c == '\0' || c == '\n')
 					ERROR(49);
+				if((c & 0200) && iflag) {
+					iflag = 0;
+					if(&ep[32] >= endbuf)
+						ERROR(50);
+					ep[-1] = CXCL;
+					for(i = 16; i < 32; i++)
+						ep[i] = 0;
+				}
 				if(c == '-' && lc != 0) {
 					if((c = GETC()) == ']') {
 						PLACE('-');
 						break;
 					}
-					while(lc < c) {
+					if((c & 0200) && iflag) {
+						iflag = 0;
+						if(&ep[32] >= endbuf)
+							ERROR(50);
+						ep[-1] = CXCL;
+						for(i = 16; i < 32; i++)
+							ep[i] = 0;
+					}
+					while(lc < c ) {
 						PLACE(lc);
 						lc++;
 					}
@@ -130,13 +159,25 @@ char *instring, *endbuf;
 				lc = c;
 				PLACE(c);
 			} while((c = GETC()) != ']');
+			
+			if(iflag)
+				iflag = 16;
+			else
+				iflag = 32;
+			
 			if(neg) {
-				for(cclcnt = 0; cclcnt < 16; cclcnt++)
-					ep[cclcnt] ^= -1;
-				ep[0] &= 0376;
+				if(iflag == 32) {
+					for(cclcnt = 0; cclcnt < iflag; cclcnt++)
+						ep[cclcnt] ^= 0377;
+					ep[0] &= 0376;
+				} else {
+					ep[-1] = NCCL;
+					/* make nulls match so test fails */
+					ep[0] |= 01;
+				}
 			}
 
-			ep += 16;
+			ep += iflag;
 
 			continue;
 
@@ -152,7 +193,7 @@ char *instring, *endbuf;
 				continue;
 
 			case ')':
-				if(bracketp <= bracket || ++ebra != nbra)
+				if(bracketp <= bracket) 
 					ERROR(42);
 				*ep++ = CKET;
 				*ep++ = *--bracketp;
@@ -222,10 +263,11 @@ char *instring, *endbuf;
 	}
 }
 
-step(p1, p2)
-register char *p1, *p2;
+int step(p1, p2)
+register char *p1, *p2; 
 {
 	register c;
+
 
 	if(circf) {
 		loc1 = p1;
@@ -259,10 +301,12 @@ register char *lp, *ep;
 {
 	register char *curlp;
 	int c;
-	char *bbeg;
+	char *bbeg; 
+	register char neg;
 	int ct;
 
 	while(1) {
+		neg = 0;
 		switch(*ep++) {
 
 		case CCHR:
@@ -284,13 +328,25 @@ register char *lp, *ep;
 			loc2 = lp;
 			return(1);
 	
-		case CCL:
-			c = *lp++ & 0177;
+		case CXCL: 
+			c = (unsigned char)*lp++;
 			if(ISTHERE(c)) {
+				ep += 32;
+				continue;
+			}
+			return(0);
+		
+		case NCCL:	
+			neg = 1;
+
+		case CCL: 
+			c = *lp++;
+			if(((c & 0200) == 0 && ISTHERE(c)) ^ neg) {
 				ep += 16;
 				continue;
 			}
 			return(0);
+		
 		case CBRA:
 			braslist[*ep++] = lp;
 			continue;
@@ -328,22 +384,43 @@ register char *lp, *ep;
 			ep += 2;
 			goto star;
 	
-		case CCL | RNGE:
-			getrnge(ep + 16);
+		case CXCL | RNGE:
+			getrnge(ep + 32);
 			while(low--) {
-				c = *lp++ & 0177;
+				c = (unsigned char)*lp++;
 				if(!ISTHERE(c))
 					return(0);
 			}
 			curlp = lp;
 			while(size--) {
-				c = *lp++ & 0177;
+				c = (unsigned char)*lp++;
 				if(!ISTHERE(c))
 					break;
 			}
 			if(size < 0)
 				lp++;
-			ep += 18;		/* 16 + 2 */
+			ep += 34;		/* 32 + 2 */
+			goto star;
+		
+		case NCCL | RNGE:
+			neg = 1;
+		
+		case CCL | RNGE:
+			getrnge(ep + 16);
+			while(low--) {
+				c = *lp++;
+				if(((c & 0200) || !ISTHERE(c)) ^ neg)
+					return(0);
+			}
+			curlp = lp;
+			while(size--) {
+				c = *lp++;
+				if(((c & 0200) || !ISTHERE(c)) ^ neg)
+					break;
+			}
+			if(size < 0)
+				lp++;
+			ep += 18; 		/* 16 + 2 */
 			goto star;
 	
 		case CBACK:
@@ -381,11 +458,22 @@ register char *lp, *ep;
 			ep++;
 			goto star;
 	
+		case CXCL | STAR:
+			curlp = lp;
+			do {
+				c = (unsigned char)*lp++;
+			} while(ISTHERE(c));
+			ep += 32;
+			goto star;
+		
+		case NCCL | STAR:
+			neg = 1;
+
 		case CCL | STAR:
 			curlp = lp;
 			do {
-				c = *lp++ & 0177;
-			} while(ISTHERE(c));
+				c = *lp++;
+			} while(((c & 0200) == 0 && ISTHERE(c)) ^ neg);
 			ep += 16;
 			goto star;
 	
@@ -409,3 +497,4 @@ register char *str;
 	low = *str++ & 0377;
 	size = (*str == 255)? 20000: (*str &0377) - low;
 }
+

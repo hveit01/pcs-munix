@@ -1,4 +1,11 @@
-/* @(#)tty.h	6.2 */
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/tty.h	10.1"*/
 /*
  * A clist structure is the head of a linked list queue of characters.
  * The routines getc* and putc* manipulate these structures.
@@ -37,7 +44,7 @@ struct tty {
 	ushort	t_oflag;	/* output modes */
 	ushort	t_cflag;	/* control modes */
 	ushort	t_lflag;	/* line discipline modes */
-	short	t_state;	/* internal state */
+	short   t_state;        /* internal state */
 	short	t_pgrp;		/* process group name */
 	char	t_line;		/* line discipline */
 	char	t_delct;	/* delimiter count */
@@ -65,9 +72,10 @@ struct cblock {
 };
 
 extern struct cblock cfree[];
-extern struct cblock * getcb();
-extern struct cblock * getcf();
-extern struct clist ttnulq;
+extern struct cblock	*getcb();
+extern struct cblock	*getcf();
+extern struct clist	ttnulq;
+extern int		cfreecnt;
 
 struct chead {
 	struct cblock *c_next;
@@ -91,7 +99,6 @@ extern int ttlowat[], tthiwat[];
 #define	TTYHOG	256
 #define	TTXOLO	132
 #define	TTXOHI	180
-#define	TTECHI	80
 
 /* Hardware bits */
 #define	DONE	0200
@@ -132,11 +139,13 @@ extern int ttlowat[], tthiwat[];
 #define	T_WFLUSH	7
 #define	T_BREAK		8
 #define	T_INPUT		9
+#define T_DISCONNECT	10
 #define	T_PARM		11
 #define	T_SWTCH		12
 
 /*
- * Terminal flags (set in t_tmflgs).
+ * Terminal flags (set in t_tmflag).
+ * UH: not used except for TTYFIONBIO
  */
 
 #define SNL	1		/* non-standard new-line needed */
@@ -152,8 +161,9 @@ extern int ttlowat[], tthiwat[];
 				/* next character is special.          */
 				/* This bit is the same as the TM_SET  */
 				/* bit which may never be set by a user*/
+#define  TTYFIONBIO     0x40    /* non blocking tty io in general */
 /*
- *	device report
+ *	device reports
  */
-#define	L_BUF	0
-#define	L_BREAK	3
+#define	L_BUF		0
+#define	L_BREAK		3

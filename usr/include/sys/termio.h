@@ -1,4 +1,11 @@
-/* @(#)termio.h	6.3 */
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/termio.h	10.3"*/
 #define NCC     10
 
 /* control characters */
@@ -97,12 +104,9 @@
 #define	B4800	0000014
 #define	B9600	0000015
 #define	B19200	0000016
+#define EXTA	0000016
 #define	B38400	0000017
-			/* EXTA and EXTB should be deleted when cleaned */
-			/* out of the source */
-#define	EXTA	0000016
-#define	EXTB	0000017
-			/* they are aliases for b19200 and B38400 */
+#define EXTB	0000017
 #define	CSIZE	0000060
 #define	CS5	0
 #define	CS6	0000020
@@ -114,11 +118,13 @@
 #define	PARODD	0001000
 #define	HUPCL	0002000
 #define	CLOCAL	0004000
-#define	LOBLK	0010000
-#define TOSTOP  0010000		/* stop on output from BG process */
+#define RCV1EN	0010000
+#define	XMT1EN	0020000
+#define	LOBLK	0040000
+#define TOSTOP  0040000         /* stop on output from BG process */
 /* UH: TTSEL bit only used for vtty select facility, should be in t_state,
    but no unused bits there */
-#define TTSEL   0020000
+#define TTSEL   0100000
 #ifdef SELECT
 #define TTYSEL  0040000
 #endif

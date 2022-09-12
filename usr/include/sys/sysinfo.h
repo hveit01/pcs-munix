@@ -1,9 +1,21 @@
-/* @(#)sysinfo.h	6.2 */
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/sysinfo.h	10.4"*/
+
+/*
+ *	System Information.
+ */
+
 struct sysinfo {
-	time_t  cpu[5];
+	time_t	cpu[5];
 #define	CPU_IDLE	0
 #define	CPU_USER	1
-#define CPU_KERNEL      2
+#define	CPU_KERNEL	2
 #define	CPU_WAIT	3
 #define CPU_SXBRK	4
 	time_t	wait[3];
@@ -22,6 +34,9 @@ struct sysinfo {
 	long	bswapout;
 	long	pswitch;
 	long	syscall;
+	long 	remcall;	/* REMOTE: remote call */
+	long    fileop;		/* REMOTE: remote fileop */
+	long    serve;		/* REMOTE: remote server */
 	long	sysread;
 	long	syswrite;
 	long	sysfork;
@@ -55,16 +70,50 @@ struct syswait {
 	short	physio;
 };
 
-extern struct syswait syswait;
-
-struct syserr {
-	long	inodeovf;
-	long	fileovf;
-	long	textovf;
-	long	procovf;
+struct dinfo {
+			/* ELEMENT FOR sar -Du */
+	time_t	serve;		/* ticks in serve() since boot */
+			/* ELEMENTS FOR sar -Dc */
+	long	isyscall;	/* # of incoming syscalls since boot */
+	long	isysread;	/* # of incoming read's since boot */
+	long	ireadch;	/* char's read by incoming read's */
+	long	isyswrite;	/* # of incoming write's since boot */
+	long	iwritech;	/* char's written by incoming writes */
+	long	isysexec;	/* # of incoming exec's since boot */
+	long	osyscall;	/* # of outgoing syscalls since boot */
+	long	osysread;	/* # of outgoing read's since boot */
+	long	oreadch;	/* char's read by outgoing read's */
+	long	osyswrite;	/* # of outgoing write's since boot */
+	long	owritech;	/* char's written by outgoing writes */
+	long	osysexec;	/* # of outgoing exec's since boot */
+			/* ELEMENTS FOR sar -S*/
+	long	nservers;	/* sum of all servers since boot */
+	long	srv_que;	/* sum of server Q lgth since boot */
+	long	srv_occ;	/* ticks server Q found occupied */
+	long	rcv_que;	/* sum of receive Q lgth since boot */
+	long	rcv_occ;	/* clock ticks receive Q occupied */
 };
-
-extern struct syserr syserr;
+struct rcinfo {
+	long	cbread;		/* read blocks sent to remote server*/
+					/* (not found in cache) */
+	long	cbwrite;	/* write blocks not found in local cache*/
+	long	clread;		/* total blocks in remote read */
+	long	clwrite;	/* total blocks in remote write */
+	long	snd_dis;	/* cache disable messages sent (server) */
+	long	snd_msg;	/* total RFS messages sent */
+	long	rcv_dis;	/* cache disable messages received (client) */
+	long	rcv_msg;	/* total RFS messages received */
+	long	dis_bread;	/* # of per-file blocks flushed from cache*/
+	long	blk_inval;	/* # of per-file blocks flushed from cache*/
+	long	inval;		/* # of per-file cache flushes */
+};
+extern struct dinfo dinfo;
+extern struct rcinfo rcinfo;
+extern	int minserve;		/* DU tunable: sever low water mark */
+extern	int maxserve;		/* DU tunable: sever high water mark */
+extern	int nservers;		/* total servers in system */
+extern	int idleserver;		/* idle servers in system */
+extern	int msglistcnt;		/* receive descriptors in msg queue */
 
 
 struct minfo {
@@ -86,3 +135,26 @@ struct minfo {
 };
 
 extern struct minfo minfo;
+extern struct syswait syswait;
+
+struct syserr {
+	long	inodeovf;
+	long	fileovf;
+	long	textovf;
+	long	procovf;
+};
+
+extern struct syserr syserr;
+
+struct shlbinfo {
+	long	shlbs;		/* Max # of libs a process can link in	*/
+				/*   at one time.			*/
+	long	shlblnks;	/* # of times processes that have used	*/
+				/*   static shared libraries.		*/
+	long	shlbovf;	/* # of processes needed more shlibs	*/
+				/*   than the system imposed limit.	*/
+	long	shlbatts;	/* # of times processes have attached	*/
+				/*   run time libraries.		*/
+};
+
+extern struct shlbinfo shlbinfo;

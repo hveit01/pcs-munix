@@ -5,8 +5,8 @@
 struct utsname utsname = {
 	"cadmus",
 	"aunix",
-	"Aug 87",
-	"m32-1.2",
+	"Jun 88",
+	"V.3-3.1",
 	{ 0x0800, 0x2700, 0x8000},   /* Ethernet address           */
 	0,                           /* unique serial number    */
 	0xc00c0000 + 0x8000L         /* unique ip address        */

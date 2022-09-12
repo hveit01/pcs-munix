@@ -19,8 +19,9 @@ struct  exvec
 			 ushort exfmtvec;       /* Format / Vector offset */
 			 long  exinstaddr;      /* Instruction address */
 		} ex1;
-		/* M68020 bus or address error */
-		struct { ushort exstatreg;      /* Status register */
+		/* M68020 bus or address error, and Interrupt 7 (upto dummy0) */
+		struct { long  exesr;           /* esr register */
+			 ushort exstatreg;      /* Status register */
 			 long  expc;            /* Program counter */
 			 ushort exfmtvec;       /* Format / Vector offset */
 			 ushort dummy0;

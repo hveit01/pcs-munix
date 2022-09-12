@@ -1,7 +1,4 @@
-/*
- *  static char ID[] = "@(#) reloc.h: 1.3 12/29/82";
- */
-
+ /* #ident  "@(#)head:reloc.h       2.6" */
 struct reloc {
 	long	r_vaddr;	/* (virtual) address of reference */
 	long	r_symndx;	/* index into symbol table */
@@ -55,33 +52,23 @@ struct reloc {
 #define  R_IND24	015
 #define  R_IND32	016
 
-/* 
- * XL generics
- *	10-bit direct reference
- *	10-bit "relative" reference
- *	32-bit "relative" reference
- */
-#define	R_DIR10		025
-#define R_REL10		026
-#define R_REL32		027
-
 /*
- * 3B and M32 generics
+ * 3B and M32 || u3b15 || u3b5 || u3b2 generics
  *	32-bit direct reference
  */
 #define  R_DIR32	06
 
 /*
- * M32 generic
+ * M32 || u3b15 || u3b5 || u3b2 generic
  *	32-bit direct reference with bytes swapped
  */
 #define  R_DIR32S	012
- 
- /*
-  * DEC Processors  VAX 11/780 and VAX 11/750 
-  *
-  */
- 
+
+/*
+ * DEC Processors  VAX 11/780 and VAX 11/750
+ *
+ */
+
 #define R_RELBYTE	017
 #define R_RELWORD	020
 #define R_RELLONG	021
@@ -89,18 +76,25 @@ struct reloc {
 #define R_PCRWORD	023
 #define R_PCRLONG	024
 
+/*
+ * Motorola 68000
+ *
+ * ... uses R_RELBYTE, R_RELWORD, R_RELLONG, R_PCRBYTE and R_PCRWORD as for
+ * DEC machines above.
+ */
+
 
 #define	RELOC	struct reloc
 #define	RELSZ	10	/* sizeof(RELOC) */
 
 	/* Definition of a "TV" relocation type */
 
-#if N3B || U3B
+#if N3B
 #define ISTVRELOC(x)	((x==R_OPT16)||(x==R_IND24)||(x==R_IND32))
 #endif
 #if B16 || X86
 #define ISTVRELOC(x)	(x==R_IND16)
 #endif
-#if M32
+#if M32 || u3b15 || u3b5 || u3b2 || m68000
 #define ISTVRELOC(x)	(x!=x)	/* never the case */
 #endif

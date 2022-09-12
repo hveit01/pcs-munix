@@ -1,4 +1,4 @@
-#ident	"@(#)sgs-inc:common/filehdr.h	1.19"
+ /* #ident  "@(#)sgs-inc:common/filehdr.h   1.19"       */
 /*
  */
 
@@ -128,6 +128,13 @@ struct filehdr {
 #define VAXWRMAGIC	0570
 			/* readonly sharable text segments */
 #define VAXROMAGIC	0575
+
+	/* CADMUS 68000 machines (same as vax, but vax image would appear byteswapped */
+
+			/* writeable text segments */
+#define M68WRMAGIC      0570
+			/* readonly sharable text segments */
+#define M68ROMAGIC      0575
 
 	/* pdp11 */
 /*			0401	UNIX-rt ldp */

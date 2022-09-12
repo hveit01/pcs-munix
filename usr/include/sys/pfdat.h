@@ -7,7 +7,7 @@ typedef struct pfdat {
 	cnt_t		pf_use;		/* share use count	*/
 	dev_t		pf_dev;		/* Disk device code.	*/
 	char		pf_swpi;	/* Index into swaptab.	*/
-/*UH*/  struct inode    *pf_ino;        /* pointer to inode for DBD_FILE */
+	long            pf_inumber;     /* inode number for DBD_FILE */
 	struct pfdat	*pf_next;	/* Next free pfdat.	*/
 	struct pfdat	*pf_prev;	/* Previous free pfdat.	*/
 	struct pfdat	*pf_hchain;	/* Hash chain link.	*/

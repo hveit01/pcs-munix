@@ -16,5 +16,5 @@ typedef unsigned short WORD;
 #define MON_OUT	"mon.out"
 #define MPROGS0 (600 * sizeof(WORD))    /* 300 for pdp11, 600 for 32-bits */
 #ifndef NULL
-#define NULL    ((char *)0)
+#define NULL    0L
 #endif

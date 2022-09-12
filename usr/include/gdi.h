@@ -32,11 +32,10 @@
 #define BLACK           15
 
 /* some modifier bits of the function code for g_bitblt*()              */
-#define S_ALIGNED_MASK  0x10            /* src aligned 3 op bitblt      */
-#define D_ALIGNED_MASK  0x20            /* dest aligned " " (regions)   */
-#define SCAN_REVERSE    0x40            /* fillByXorScanlines           */
-
-
+#define MASK_BITMAP     0x10            /* src/dest aligned 3 op bitblt */
+#define CHECK_MODE      0x20            /* checking mask bitmap         */
+#define TEXTURE         0x40            /* texturing                    */
+#define SCAN_REVERSE    0x80            /* fillByXorScanlines           */
 
 /*      Line & Edge Styles                                              */
 

@@ -1,1 +1,1 @@
-char * CURversion = "@(#) Munix Version %s generated on: Mon May  4 10:19:18 MET 1987";
+char * CURversion = "@(#) MUNIX V.3/32 version = '%9s' release = '%9s'\ngenerated on: Fri Mar 11 12:41:09 MEZ 1988";

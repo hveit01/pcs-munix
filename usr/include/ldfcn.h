@@ -1,4 +1,4 @@
-#ident	"@(#)head:ldfcn.h	2.5"
+ /* #ident  "@(#)head:ldfcn.h       2.5"        */
 
 #ifndef LDFILE
 struct	ldfile {

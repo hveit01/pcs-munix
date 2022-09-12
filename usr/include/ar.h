@@ -1,4 +1,4 @@
-#ident	"@(#)head:ar.h	2.10"
+ /* #ident  "@(#)head:ar.h  2.10"       */
 /*		COMMON ARCHIVE FORMAT
 *
 *	ARCHIVE File Organization:

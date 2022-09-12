@@ -1,8 +1,9 @@
-#ifndef BADSIG			# if signal.h already read in
+#ifndef BADSIG
 /*	@(#)signal.h	1.1	*/
 #include<sys/signal.h>
 
-extern	(*signal())();
+extern  void(*signal())();
+extern  void(*sigset())();
 #define BADSIG  (int (*)())-1
 #endif
 

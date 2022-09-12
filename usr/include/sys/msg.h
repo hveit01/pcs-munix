@@ -1,4 +1,12 @@
-/* @(#)msg.h	6.1 */
+/*	Copyright (c) 1984 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
+/*	The copyright notice above does not evidence any   	*/
+/*	actual or intended publication of such source code.	*/
+
+/*#ident	"@(#)kern-port:sys/msg.h	10.4"*/
+
 /*
 **	IPC Message Facility.
 */
@@ -84,3 +92,18 @@ struct msginfo {
 		msgtql;	/* # of system message headers */
 	ushort	msgseg;	/* # of msg segments (MUST BE < 32768) */
 };
+
+/*	We have to be able to lock a message queue since we can
+**	sleep during message processing due to a page fault in
+**	copyin/copyout or iomove.  We cannot add anything to the
+**	msqid_ds structure since this is used in user programs
+**	and any change would break object file compatibility.
+**	Therefore, we allocate a parallel array, msglock, which
+**	is used to lock a message queue.  The array is defined
+**	in the msg master file.  The following macro takes a
+**	pointer to a message queue and returns a pointer to the
+**	lock entry.  The argument must be a pointer to a msgqid
+**	structure.
+**/
+
+#define	MSGLOCK(X)	&msglock[X - msgque]

@@ -1,11 +1,18 @@
-static char * _Version = "@(#) RELEASE:  2.2  May 26 1987 /usr/sys/c.c ";
+static char * _Version = "@(#) RELEASE:  2.9  Nov 10 1988 /usr/sys/c.c ";
 /*
 Modifications
 vers    when    who     what
+2.9     101188  BL      3 CGP Boards, 256 kb distance
+2.8     230988  UH      KIDAN, maopen: - seltrue + ma_tty
+2.7     290888  JH      CGS4600->CGP
+2.6     250588  UH/KS   new interrupt vectors for COL, see also l.s: 1.9
+2.5     280388  rob     new iw_sizes for WD53
+2.4     220288  JH      MSV1 integrated
+2.3     141087  JH      CALCOMP / undone
 2.2     260587  rob     new iw_sizes for WD52 and WD53
-2.1     240487  rob     new iw_sizes for WD51,WD52,WD53 (and WD54)
+2.1     290487  rob     new iw_sizes for WD51,WD52,WD53 (and WD54)
 2.0     171186  nb      sdlc driver (IBM-3274); cdev: 50; SDLC.
-1.9     131186  jh      tty structure for PTY
+1.9     17.Nov  nb      sdlc driver (IBM-3274); cdev: 50; SDLC.
 1.8     071186  bl      color update
 1.7     20.Oct  iw      ifdef MUXKE, x25pty.c = pty.c
 1.6     011086  wild    non-standard Ethernet address for DECNet emulation
@@ -21,6 +28,7 @@ vers    when    who     what
 #include "sys/types.h"
 #include "sys/sysmacros.h"
 #include "sys/systm.h"
+#include "sys/fstyp.h"
 #include "sys/conf.h"
 #include "sys/signal.h"
 #include "sys/dir.h"
@@ -31,12 +39,13 @@ vers    when    who     what
 #include "conf.h"
 
 
-#if defined(ICC_ETH) || defined(ICC_UNISON) || defined(IW) || defined(IS) || defined(IF) || defined(ICC_SCC) || defined(ICC_TCPIP) || defined(X25) || defined(SDLC)
+#if defined(ICC_ETH) || defined(ICC_UNISON) || defined(IW) || defined(IS) || defined(IF) || defined(ICC_SCC) || defined(SOCKET) || defined(X25) || defined(SDLC) || defined(MSV1)
 #       define ICC 1
+#include <sys/icc/unix_icc.h>
 #endif
 
-#if defined(ICC_ETH) || defined(ICC_UNISON) || defined(IW) || defined(IS) || defined(IF) || defined(ICC_SCC) || defined(ICC_TCPIP)
-#       define ICC_BOOT 1 /*???*/
+#if defined(ICC_ETH) || defined(ICC_UNISON) || defined(IW) || defined(IS) || defined(IF) || defined(ICC_SCC) || defined(SOCKET)
+#       define ICC_BOOT 1
 #endif
 
 #include "sys/space.h"
@@ -52,6 +61,12 @@ int     bip_sel ();
 extern  struct tty bip_tty[];
 #endif
 
+#ifdef  COL
+int     cbip_open(), cbip_close(), cbip_read(), cbip_write(), cbip_ioctl();
+int     cbip_sel ();
+extern  struct tty cbip_tty[];
+#endif
+
 #if !defined(DLSUPPORT) || !defined(MASTERNODE)
 #undef MAXDLNACTV
 #define MAXDLNACTV 0
@@ -62,10 +77,14 @@ int     dsklinit(), rmtopen(), rmtclose(), rmtstrategy();
 #endif
 
 
-#ifdef  COL
-int     cbip_open(), cbip_close(), cbip_read(), cbip_write(), cbip_ioctl();
-int     cbip_sel ();
-extern  struct tty cbip_tty[];
+#ifdef	DQS
+int	dqsopen(), dqsclose(), dqsread(), dqswrite(), dqsioctl();
+#endif
+
+#ifdef CGP
+int     fx_open (), fx_close (), fx_read(), fx_write(),fx_ioctl();
+int     fx_sel();
+extern  struct tty fx_tty[];
 #endif
 
 #ifdef  HK
@@ -88,15 +107,6 @@ int     icc_ethopen(), icc_ethclose(), icc_ethread(), icc_ethwrite(),
 #ifdef  ICC_SCC
 int     sccopen(), sccclose(), sccread(), sccwrite(), sccioctl();
 extern  struct tty scc_tty[];
-#endif
-
-#ifdef ICC_TCPIP
-		/* the admin device for direct icc access/ socket admin */
-int	tcp_adopen(), tcp_adclose(), tcp_adread(), tcp_adwrite(), tcp_adioctl();
-
-		/* now the driver for all those little sockets */
-int	tcp_soopen(), tcp_soclose(), tcp_soread(), tcp_sowrite(), tcp_soioctl();
-short arpa_icc=ARPA_ICC;
 #endif
 
 #ifdef ICC_UNISON
@@ -124,18 +134,33 @@ int     iw_open(), iw_strategy();
 int     iw_read(), iw_write(), iw_ioctl();
 #endif
 
-#ifdef  LP
-int     lpopen(), lpclose(), lpwrite(), lpioctl();
+#ifdef KD
+int     maopen(), maclose(), maread(), mawrite(), maioctl();
+extern  struct tty ma_tty[];
+int     svopen(), svclose(), svioctl();
 #endif
 
-#ifdef	DQS
-int	dqsopen(), dqsclose(), dqsread(), dqswrite(), dqsioctl();
+#ifdef  LP
+int     lpopen(), lpclose(), lpwrite(), lpioctl();
 #endif
 
 #ifdef  MUXKE2
 int     dhopen(),  dhclose(),  dhread(),  dhwrite(),  dhioctl();
 extern  struct tty dh_tty[];
 #endif
+
+#ifdef MSV1
+#include <sys/msv.h>
+int	msv_open(), msv_close(), msv_read(), msv_write(), msv_ioctl();
+#if (NMSV1 > MAXSTAT)
+error "NMSV1 should be less than MAXSTAT (file :/usr/include/sys/msv.h)"
+#else
+int		msv_subdevices= NMSV1;
+int		msv_iccnr = MSV1_ICCNR;
+MSV_CHANNEL	msv_channel[NMSV1];
+#endif
+#endif
+
 
 /* Serial interface on CPU board, called mfp or SCO..                   */
 int     mfpopen(),mfpclose(),mfpread(),mfpwrite(),mfpioctl();
@@ -146,7 +171,11 @@ int	ptcopen(), ptcclose(), ptcread(), ptcwrite(), ptcioctl();
 int	ptsopen(), ptsclose(), ptsread(), ptswrite(), ptsioctl();
 int     ptc_sel();
 int ptc_dev = 39;
-extern struct  tty pt_tty[];
+extern struct tty pt_tty[];
+#endif
+
+#ifdef  RAMDISK
+int     ram_open(), ram_strategy();
 #endif
 
 #ifdef  SBP
@@ -160,6 +189,14 @@ int	sdlc_check();
 
 #ifdef  ST
 int     ststrategy(), stopen(), stclose(), stread(), stwrite(), stioctl();
+#endif
+
+#ifdef STREAM
+extern struct streamtab clninfo, loginfo, spinfo, seinfo;
+#endif
+
+#ifdef STRTEST  /* drivers for SVVS */
+extern struct streamtab loinfo, tivinfo, tidinfo, tmxinfo;
 #endif
 
 #ifdef  SW
@@ -184,14 +221,9 @@ int     tsbaemask = 0;          /* would be 0x2400 for Emulex Controller */
 int     (*tapeintr)() = tsintr;
 #endif
 
-#ifdef SDLC
-int sdlcopen(), sdlcclose(), sdlcread(), sdlcwrite(), sdlcioctl();
-#endif
-
 #ifdef X25
 int	x25open(), x25close(), x25read(), x25write(), x25ioctl();
 #endif
-
 
 /* Munix/Net special lan device switch */
 struct	ldevsw	ldevsw[] =
@@ -221,7 +253,11 @@ struct	bdevsw	bdevsw[] =
 	nodev,  nodev,  nodev,
 #endif
 
-	nodev,  nodev,  nodev,                  /* rk = 5               */
+#ifdef RAMDISK
+	ram_open,nulldev,ram_strategy,          /* ram_disk = 5, was rk */
+#else
+	nodev,  nodev,  nodev,
+#endif
 	nodev,  nodev,  nodev,                  /* hp = 6               */
 	nodev,  nodev,  nodev,                  /* td = 7               */
 
@@ -281,7 +317,7 @@ int     bdevcnt = sizeof(bdevsw) / sizeof(struct bdevsw);
 
 int     mmread(), mmwrite();
 int     prfread(), prfwrite(), prfioctl();
-int     syopen(), syread(), sywrite(), syioctl();
+int     syopen(), syread(), sywrite(), syioctl(), sysel();
 int     erropen(), errclose(), errread(), errwrite(), errioctl();
 
 
@@ -291,7 +327,7 @@ struct	cdevsw	cdevsw[] =
 {
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL, /* console, set dyn.*/
 	nulldev, nulldev, mmread,  mmwrite,  nodev,    sel_true, NULL, NULL, /* mem = 1  */
-	syopen,  nulldev, syread,  sywrite,  syioctl,  NULL,     NULL, NULL, /* tty = 2  */
+	syopen,  nulldev, syread,  sywrite,  syioctl,  sysel,    NULL, NULL, /* tty = 2  */
 	nulldev, nulldev, prfread, prfwrite, prfioctl, NULL,     NULL, NULL, /* prof = 3 */
 
 	erropen, errclose,errread, errwrite, errioctl, NULL,     NULL, NULL, /* err = 4; was rrl = 4      */
@@ -304,9 +340,18 @@ struct	cdevsw	cdevsw[] =
 	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,
 #endif
 
-	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,  /* rrx = 7      */
 
-	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,  /* was mxt = 8  */
+#ifdef STREAM                                           /* CLONE = 7    */
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, &clninfo,
+#else
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,
+#endif
+
+#ifdef CGP                                              /* fx = 8  */
+	fx_open, fx_close,fx_read, fx_write,fx_ioctl,  fx_sel,   fx_tty, NULL,
+#else
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,
+#endif
 	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,  /* tm = 9       */
 
 #ifdef LP                                               /* lp = 10      */
@@ -329,10 +374,19 @@ struct	cdevsw	cdevsw[] =
 	nodev,   nodev,   nodev,  nodev,     nodev,    NULL,     NULL, NULL,
 #endif
 
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* rhp = 14     */
+#ifdef STREAM                                           /* stream log = 14 */
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, &loginfo,
+#else
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+#endif
 							/* SCO console = 15 */
 	mfpopen, mfpclose,mfpread, mfpwrite, mfpioctl, NULL,     mfp_tty,NULL,
+
+#ifdef TH /********** reserved for TH/SIEMENS !! ************************/
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* dlv11-j =16  */
+#else  TH
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* dlv11-j =16  */
+#endif TH
 
 #ifdef ST                                               /* rst = 17     */
 	stopen,  stclose, stread,  stwrite,  stioctl,  sel_true, NULL, NULL,
@@ -340,8 +394,17 @@ struct	cdevsw	cdevsw[] =
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* lbp = 18     */
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* rhl = 19     */
+#ifdef MSV1                                             /* MSV1 = 18 */
+	msv_open, msv_close,msv_read, msv_write, msv_ioctl, NULL, NULL, NULL,
+#else
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+#endif
+
+#ifdef STREAM                                           /* stream sp = 19       */
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, &spinfo,
+#else
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+#endif
 
 #ifdef HK2                                              /* rhk2 = 20    */
 	hk2open, nulldev, hk2read, hk2write, nodev,    sel_true, NULL, NULL,
@@ -349,13 +412,13 @@ struct	cdevsw	cdevsw[] =
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
-#ifdef DQS
-	dqsopen, dqsclose,dqsread, dqswrite, dqsioctl, NULL,     NULL, NULL,  /* dqs = 21 */
+#ifdef DQS                                              /* dqs = 21     */
+	dqsopen, dqsclose,dqsread, dqswrite, dqsioctl, NULL,     NULL, NULL,
 #else
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* dqs   = 21   */
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
-#ifdef ICC_ETH                                          /* ether = 22   */
+#ifdef ICC_ETH  /* BBP driver */                        /* bbp = 22   */
   icc_ethopen,icc_ethclose,icc_ethread,icc_ethwrite,icc_ethioctl,NULL,NULL,NULL,
 #else
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
@@ -378,19 +441,30 @@ struct	cdevsw	cdevsw[] =
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* slu = 26     */
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* sasi = 27    */
 
-#ifdef  TS                                             /* ts = 28      */
+#ifdef  TS                                              /* ts = 28      */
 	tsopen,  tsclose, tsread,  tswrite,  tsioctl,  sel_true, NULL, NULL,
 #else
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
+#ifdef STRTEST
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, &loinfo, /* lo = 29 */
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, &tivinfo,/* tiv = 30 */
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, &tidinfo,/* tid = 31 */
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, &tmxinfo,/* tmx = 32 */
+#else
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* dlv11-e = 29 */
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* raster = 30  */
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* rfd = 31     */
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* rampage = 32 */
+#endif
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* rwt = 33     */
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* mbus = 34    */
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* reagle = 35  */
+#ifdef XXSTREAM                                         /* streth = 35, was reagle */
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, &seinfo,
+#else
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+#endif
   
 #ifdef SXT                                              /* sxt = 36     */
 	sxtopen, sxtclose,sxtread, sxtwrite, sxtioctl, sxt_sel,  NULL, NULL,
@@ -433,25 +507,26 @@ struct	cdevsw	cdevsw[] =
 #endif
 
 #ifdef  ICC_SCC                                 /* icc scc = 48         */
-	sccopen, sccclose,sccread, sccwrite, sccioctl, NULL, scc_tty, NULL,
+	sccopen, sccclose,sccread, sccwrite, sccioctl, NULL,     scc_tty, NULL,
 #else
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL, NULL,    NULL,
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
 #ifdef  ICC                                     /* icc download = 49    */
 	iccopen_d, iccclose_d, nodev, iccwrite_d, iccioctl_d, NULL, NULL, NULL,
 #else
-	nodev,   nodev,   nodev,   nodev,    nodev,           NULL, NULL, NULL,
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
-#ifdef SDLC                                     /* sdlc = 50            */
-	sdlcopen, sdlcclose, sdlcread, sdlcwrite, sdlcioctl, NULL, NULL, NULL,
+#ifdef SDLC
+								/* sdlc = 50 */
+	sdlcopen,sdlcclose,sdlcread,sdlcwrite,sdlcioctl, NULL,   NULL, NULL,
 #else
-	nodev, nodev, nodev, nodev, nodev,                   NULL, NULL, NULL,
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
 #ifdef X25
-						/* x25 = 51             */
+						/* x25 = 51 */
 	x25open, x25close,x25read, x25write, x25ioctl, NULL,     NULL, NULL,
 #else
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
@@ -472,13 +547,19 @@ struct	cdevsw	cdevsw[] =
 #endif
 
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,  /* 56 = gpib interf.*/
-#ifdef ICC_TCPIP                                /* full TCP/IP admin devc 57 */
-   tcp_adopen,tcp_adclose,tcp_adread,tcp_adwrite,tcp_adioctl,NULL, NULL, NULL,
-   tcp_soopen,tcp_soclose,tcp_soread,tcp_sowrite,tcp_soioctl,NULL, NULL, NULL,
+
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,   /* 57,58 was ICC_TCPIP */
+	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+
+#ifdef KD                       /* kd = 59 */
+	maopen, maclose, maread, mawrite, maioctl, NULL, ma_tty, NULL,
+				/* sv = 60 */
+	svopen, svclose, nodev, nodev, svioctl, sel_true, NULL, NULL,
 #else
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
-	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
+	nodev, nodev, nodev, nodev, nodev, NULL, NULL, NULL,
+	nodev, nodev, nodev, nodev, nodev, NULL, NULL, NULL,
 #endif
+
 };
 
 int     cdevcnt = sizeof(cdevsw) / sizeof(struct cdevsw);
@@ -521,11 +602,17 @@ struct cdevsw conssw[] = {
 	nodev,   nodev,   nodev,   nodev,    nodev,    NULL,     NULL, NULL,
 #endif
 
+#ifdef CGP                                              /* contype(fx) = 10  */
+	fx_open, fx_close,fx_read, fx_write,fx_ioctl,  fx_sel,   fx_tty, NULL,
+#else
+	nodev,   nodev,   nodev,   nodev,   nodev,     NULL,     NULL, NULL,
+#endif
+
 };
 
 
 dev_t   rootdev = makedev(ROOT, ROOTUNIT);
-dev_t   swapdev = makedev(SWAP, SWAPUNIT) | Fs2BLK;
+dev_t   swapdev = makedev(SWAP, SWAPUNIT);
 dev_t   pipedev = makedev(ROOT, ROOTUNIT);
 dev_t   rmtrootdev;     /* device numbers for remote root, swap, pipe */
 dev_t   rmtswapdev;
@@ -534,8 +621,9 @@ daddr_t swplo   = SWAPLO;
 int     nswap   = NSWAP;
 int     hz = HERTZ;             /* line frequency, normally 50 or 60    */
 int     haveclock = 1;
-time_t  bootime;
-int bootconsole = BOOTCON;
+int     bootconsole = BOOTCON;
+int     slice_size = MAXSLICE;
+
 
 dev_t   comrootdev = NODEV;     /* device number of common root fs      */
 int     comswapsmi;             /* common swaptable entry  */
@@ -594,6 +682,7 @@ int     bip_cnt = 0;
 char    *bip_addr[1];
 #endif
 
+
 #ifdef COL
 int     cbip_cnt  = NCBIP;     /* number of colour bitmap displays            */
 struct tty cbip_tty[NCBIP];
@@ -611,9 +700,8 @@ unsigned long    cbip_io_base[] =
 };
 int	cbip_intr_vec[] =
 {
-#define CBIP_INTR_VEC	0x144
-	(CBIP_INTR_VEC),
-	(CBIP_INTR_VEC + 0x10),
+	0x14C,
+	0x158,
 };
 #else
 int     cbip_cnt = 0;
@@ -660,6 +748,29 @@ char *dqs_swp = (char *)(DQSADDR+0x02);  /* byte swab yes/no */
 char *dqs_rel = (char *)(DQSADDR+0x05);  /* release number */
 #endif
 
+#ifdef CGP
+#include <sys/fxreg.h>
+int     fx_cnt  = NCGP;     /* number of bitmap displays            */
+struct tty fx_tty[NCGP];
+char    *fx_addr[] =
+{
+#define FXADDR 0x200000
+	(char *)(FXADDR+0),
+	(char *)(FXADDR+0x40000),
+	(char *)(FXADDR+0x80000),
+#if NCGP > 3
+	(char *)(FXADDR+0xc0000),
+	YOU MUST ADD TO FX_ADDR AND FX_VECTOR !!
+#endif
+};
+int fx_vector[] = { 0120, 0140, 0160 };
+struct fx_softc fx_softc[NCGP];
+
+#else
+int     fx_cnt = 0;
+char    *fx_addr[1];
+#endif /* CGP */
+
 #ifdef LP
 int     lp_cnt  = NLP;          /* number of parallel printers, <= 2    */
 char *lp_addr[] =
@@ -670,7 +781,12 @@ char *lp_addr[] =
 #endif
 
 #ifdef PTY
+#ifndef TIOCSWINSZ
+#include "sys/ioctl.h"
+#endif  TIOCSWINSZ
+
 struct	tty pt_tty[NPTY];
+struct  winsize pt_ws [NPTY];
 struct	pt_ioctl {
 	int	pt_flags;
 	struct  proc *pt_selr;
@@ -745,11 +861,11 @@ struct  fs_sizes iw_sizes[16] =
 	 69192,         69184,  /* 5    second 1/2 of wd51b        35 Mb */
 	999999,        138376,  /* 6    rest of wd52               ?? Mb */
 	999999,        285040,  /* 7    rest of wd53               ?? Mb */
-	999999,        494904,  /* 8    rest of wd54               ?? Mb */
+	999999,        615416,  /* 8    rest of wd54               ?? Mb */
 	 20480,         16384,  /* 9    medium swap space          10 Mb */
 	999999,         36864,  /* 10   rest of data pack          ?? Mb */
-	104928,        285040,  /* 11   first 1/2 of rest of wd53  52 Mb */
-	999999,        389968,  /* 12   second 1/2 of rest of wd53 ?? Mb */
+	165184,        285040,  /* 11   first 1/2 of rest of wd53  83 Mb */
+	999999,        450224,  /* 12   second 1/2 of rest of wd53 83 Mb */
 	     0,             0,  /* 13   free for expansion               */
 	     0,             0,  /* 14   free for expansion               */
 	999999,             0,  /* 15   whole disk                ??? Mb */
@@ -821,7 +937,7 @@ int x25pt_cnt = NPTY;
 struct devs { char *devnam; int devmaj} devs[] =
 {
 	"hk",4,
-	"iw",81,
+	"iw",17,
 	"sw",19,
 	0
 };
@@ -859,7 +975,7 @@ l1:     printf("please enter type of root device (");
 	gets(line);
 	min = atoi(line);
 	rootdev = pipedev = makedev(maj, min);
-	prdev("rootdev and pipedev is", rootdev);
+	printf("rootdev and pipedev is on dev %d,%d\n", major(rootdev), minor(rootdev));
 l2:     printf("please enter type of swap device (");
 	for (dp = devs; dp->devnam; dp++)
 		if (dp->devmaj >= 0) printf("%s ",dp->devnam);
@@ -877,7 +993,7 @@ l2:     printf("please enter type of swap device (");
 	gets(line);
 	min = atoi(line);
 	swapdev = makedev(maj, min);
-	prdev("swapdev is",swapdev);
+	printf("swapdev is on dev %d,%d\n", major(swapdev), minor(swapdev));
 	printf("where does swap area start (swplo): ");
 	gets(line);
 	swplo = atoi(line);
@@ -894,3 +1010,8 @@ dialog1 ()
 	dialog() {}
 	dialog1 (){}
 #endif
+
+forward_ref()
+{
+	iomove();
+}

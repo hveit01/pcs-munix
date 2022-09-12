@@ -9,6 +9,9 @@
 # define min(a,b) 		(a>b ? b : a)
 # define abs(x)			(x>=0 ? x : -(x))
 
+#ifndef NULL
+#define NULL    0L
+#endif
 # define copy(srce,dest)        cat(dest,srce,NULL)
 # define compare(str1,str2)	strcmp(str1,str2)
 # define equal(str1,str2)	!strcmp(str1,str2)
@@ -23,7 +26,7 @@
 	the flags word if it does (the flags word is always non-zero).
 */
 # include "sys/stat.h"
-struct stat Statbuf;
+extern struct stat Statbuf;
 # define exists(file)		(stat(file,&Statbuf)<0 ? 0:Statbuf.st_mode)
 
 extern long itol();
@@ -76,9 +79,9 @@ extern char    *xalloc();
 /*
 	A global null string.
 */
-char    Null[1];
+extern char    Null[1];
 
 /*
 	A global error message string.
 */
-char	Error[128];
+extern char    Error[128];

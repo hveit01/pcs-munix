@@ -16,6 +16,9 @@
 #define IS_NODISCON     0x29
 #define IS_ERRREPORT	0x2A
 #define IS_ERRCLEAR	0x2B
+#define IS_QIC120       0x2C
+#define IS_QIC150       0x2D
+#define IS_QICDEFAULT   0x2E
 
 /* example :
    short op = IS_REWIND; ioctl(fd, IS_IOCTL, &op); */

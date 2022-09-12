@@ -24,6 +24,7 @@
 #define AOUT2MAGIC 0407
 #define AOUT3MAGIC 0413
 #define PAGEMAGIC  0413
+#define LIBMAGIC   0443
 
 #define	SGSNAME	""
 #define SGS ""

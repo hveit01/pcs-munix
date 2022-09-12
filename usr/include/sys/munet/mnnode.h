@@ -1,4 +1,4 @@
-/* @(#) mnnode.h        1.1     Nov. 06 1986    */
+/* @(#) mnnode.h        1.2     Mar. 28 1988    */
 
 
 /*
@@ -17,9 +17,12 @@ struct uinode {
 	ushort nd_flag;                 /* internal flag */
 	short nd_vers;                  /* MUNIX/NET version for this node */
 	time_t nd_timediff;             /* time difference to other systems in secs */
+	ushort	nd_users;		/* number of users in map */
+	ushort	nd_groups;		/* number of groups in map */
+	struct	sidmap *nd_map;		/* explicit maps */
 };
 
-
+extern int maxnodes;                    /* allocated in space.h  */
 extern struct uinode uinode[];          /* the port table itself */
 
 /*

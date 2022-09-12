@@ -22,6 +22,8 @@ typedef struct tune {
 	int	t_minasmem;	/* The minimum available swapable	*/
 				/* memory to maintain in order to avoid	*/
 				/* deadlock.  In pages.			*/
+	int	t_maxumem;	/* The maximum size of a user's virtual	*/
+				/* address space in pages.		*/
 } tune_t;
 
 extern tune_t	tune;

@@ -1,4 +1,4 @@
-/*	@(#)string.h	1.2	*/
+ /* #ident  "@(#)head:string.h      1.7"  */
 extern char
 	*strcpy(),
 	*strncpy(),
@@ -7,7 +7,8 @@ extern char
 	*strchr(),
 	*strrchr(),
 	*strpbrk(),
-	*strtok();
+	*strtok(),
+	*strdup();
 extern int
 	strcmp(),
 	strncmp(),
@@ -16,3 +17,10 @@ extern int
 	strcspn();
 extern long
 	strtol();
+extern char
+	*memccpy(),
+	*memchr(),
+	*memcpy(),
+	*memset();
+extern int
+	memcmp();

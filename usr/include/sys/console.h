@@ -15,5 +15,6 @@
 #define icc 7
 #define con 8
 #define colour 9
+#define cgs4600 10
 
 int  con_type;

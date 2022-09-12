@@ -1,4 +1,4 @@
-#ident	"@(#)sgs-inc:common/scnhdr.h	1.10"
+ /* #ident  "@(#)sgs-inc:common/scnhdr.h    1.10"       */
 
 struct scnhdr {
 	char		s_name[8];	/* section name */

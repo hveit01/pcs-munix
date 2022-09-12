@@ -1,12 +1,13 @@
 #define DIALOG          1
 #define BIP             1 /* Bitmap Display                                */
 #define COL             1 /* Colour Display                                */
+#define CGP             1 /* Colour Display                                */
 #define ICC_SCC         1 /* ICC Serial lines for two terminals            */
 #define MUXKE2          1 /* PCS Terminal Multiplexer with modem control   */
 
 #define SW              1 /* Winchester disks; 1st SP15 or SP25 controller */
 #define SW2             1 /* Winchester disks; 2nd SP15 or SP25 controller */
-#define IW              1 /* ICC winchester (WD51) with MD01 controller    */
+#define IW              1 /* ICC winchester                                */
 #define HK              1 /* HK winchester with Emulex SC02 Controller     */
 
 #define IS              1 /* ICC streamer (CTS) with MT01 controller       */
@@ -14,13 +15,14 @@
 #define ST              1 /* ST streamer                                   */
 #define IF              1 /* ICC Floppy (FD) with Xebec controller         */
 
-#define ICC_UNISON      1 /* ICC LANCE (Ethernet) driver for MUNIX/NET     */
+#undef  ICC_UNISON        /* ICC LANCE (Ethernet) driver for MUNIX/NET     */
 #undef  ICC_ETH           /* ICC LANCE (Ethernet) driver for BBP and ETHPT (DECnet)*/
-#undef  ICC_TCPIP         /* (Ethernet) driver for TCP/IP                  */
+#undef  SOCKET            /* Support for Sockets and TCP/IP (Ethernet)     */
 #define NONSTDEA        0 /* non-standard Ethernet address                 */
 #undef  X25               /* X.25, Datex-P Interface                       */
 #undef  DQS               /* BSC-KE for IBM remote job entry (RJE)         */
 #undef  SDLC              /* SDLC Protokoll (IBM-SNA 3274 Interface)       */
+#undef  MSV1              /* MSV1 Protokoll (Siemens BS2000-Kopplung)      */
 
 #define MESG            1 /* Message passing                               */
 #define SEMA            1 /* Semaphores                                    */
@@ -28,7 +30,6 @@
 #define FLOCK           1 /* Record Locking, sys V.2                       */
 #define SBP             1 /* Simple Block Port                             */
 #define SXT             1 /* SXT Terminal multiplexer                      */
-#define RLOCK           1 /* Record locking, John Bass                     */
 #define VTTY            1 /* VTTY                                          */
 #define PTY             1 /* PTY - virtual Terminal driver for remote login*/
 #undef  STREAM            /* STREAM support                                */
@@ -38,8 +39,12 @@
 #undef  DLSUPPORT         /* diskless node support                         */
 #define NBIP            4 /* number of Bit-Map controllers                 */
 #define NCBIP           2 /* number of Color Bit-Map controllers (1 or 2)  */
-#define NDH11           8 /* number of serial interfaces on MUXKE2 (8, 16, 24 or 32)*/
-#define ARPA_ICC        0 /* ICC for TCP/IP LAN driver                     */
+#define NCGP            2 /* number of CGP Color Bit-Map controllers       */
+#define NDH11          32 /* number of serial interfaces on MUXKE2 (8, 16, 24 or 32)*/
+#define NMSV1           0 /* number of subdevices for MSV1 protcoll (max. 16)*/
+#define X25_ICCNR       0 /* ICC number for X25 protocoll (1, 2, or 3)     */
+#define SDLC_ICCNR      0 /* ICC number for SDLC protocoll (1, 2, or 3)    */
+#define MSV1_ICCNR      0 /* ICC number for MSV1 protocoll (1, 2, or 3)    */
 #define TS_DILOG        1 /* TS controller with normal tsbae,like DILOG    */
 #undef  TS_EMULEX         /* TS controller from EMULEX, or's 0x2400 to tsbae*/
 #define NPTY           48 /* number of remote login lines (PTY)            */
@@ -52,7 +57,7 @@
 #define SWAPLO          0 /* start of swap space (512 Byte Blocks)         */
 #define NSWAP       30720 /* Number of Blocks in swap area (512 Byte Blocks)*/
 #define HERTZ          50 /* Line frequency in Hertz (50 or 60 cycles)     */
-#define BOOTCON         0 /* System console id (var, MUXKE2, BIP, ICC_SCC, COL)*/
+#define BOOTCON         0 /* System console id (var, MUXKE2, BIP, ICC_SCC, COL, CGP)*/
 
 
 
@@ -61,9 +66,10 @@
                         /* 0 means use all                              */ 
                                                                            
 /* system parameters */                                                    
+#define NOFILES  50     /* number of open files per process             */ 
 #define NBUF    200     /* size of buffer cache                         */ 
 #define NINODE  250     /* number of in core inodes                     */ 
-#define NFILE   200     /* number of in core file structures            */ 
+#define NFILE   400     /* number of in core file structures            */ 
 #define NMOUNT  30      /* number of mountable file systems             */ 
 #define NCALL   80      /* max simultaneous time callouts               */ 
 #define NPROC   100     /* max number of processes                      */ 
@@ -71,27 +77,46 @@
 #define NCLIST  100     /* max total clist size                         */ 
 #define MAXUP   50      /* max processes per user                       */ 
 #define NHBUF   64      /* size of buffer hash table, must be power of two */ 
-#define NFLOCKS 100     /* number of record lock structures             */ 
 #define NPBUF   4       /* buffer headers for physio                    */ 
 #define NSXT    6       /* Number of sxt layers                         */ 
 #define MAXDLNACTV 8    /* max number of active dlnodes                 */ 
 #define REGIONS 250     /* number of regions, ca. 2.5 * NPROC           */ 
-#define GETPGSLO  4                                                        
-#define GETPGSHI  15    /* number of free pages must be greater than    */ 
-                        /* GETPGSHI before a process is loaded into core*/ 
-#define MAXSLICE  HERTZ /* tine slice before rescheduling               */ 
+#define GETPGSLO 100    /* If freemem < t_gpgslo, then start to steal pages from processes */ 
+#define GETPGSHI 200    /* Once we start to steal pages, don't stop until freemem > t_gpgshi */ 
+#define ULIMIT 8388607  /* default max write address in blocks:<8388607 */ 
+#define MAXSLICE  HERTZ/4 /* time slice before rescheduling               */ 
 #define VHANDR  1       /* max rate in seconds at which vhand will run  */ 
 #define VHNDFRAC 10     /* vhandl = maxmem / VHNDFRAC                   */ 
 #define AGERATE 0       /* process age rate                             */ 
 #define PREPAGE 0       /* prepage factor                               */ 
-#define MAXSC   1       /* max number of pages swapped out at a time    */ 
+#define MAXSC   7       /* max number of pages swapped out at a time    */ 
+#define MAXUMEM 8192    /* max number of pages for user process = 32 Mb */ 
+#define SHLBMAX 2       /* max number of shared libraries per program */
 #define SPTMAP  100     /* size of user page table map                  */ 
 #define PGMAP   100     /* size of kernel page table map                */ 
 #define DMAMAP  10      /* size of dma page table map                   */ 
 #define DMA18MAP 5      /* size of dma page table map for 18 bit controllers*/ 
 #define AUTOUP  10      
 #define FLUSHRATE 5     
-#define NQUEUE   0      
+#define NQUEUE   384    
+#define NSTREAM  48     
+#define NBLK4096 1      
+#define NBLK2048 40     
+#define NBLK1024 32     
+#define NBLK512  18     
+#define NBLK256  48     
+#define NBLK128  128    
+#define NBLK64   256    
+#define NBLK16   256    
+#define NBLK4    128    
+#define NMUXLINK 48     
+#define NSTRPUSH 9      
+#define NSTREVENT 256   
+#define MAXSEPGCNT 2    
+#define STRLOFRAC 80    
+#define STRMEDFRAC 90   
+#define STRMSGSZ 4096   
+#define STRCTLSZ 1024   
 
 
 
@@ -122,15 +147,38 @@
 #define SHMMAX  (2048L*1024) /* maximum shared memory segment size (bytes) */ 
 #define SHMMIN  1       /* minimum shared memory segment size (bytes)   */ 
 #define SHMMNI  20      /* max number of shared memory segments         */ 
-#define SHMSEG  3       /* max number of shared segments per user       */ 
+#define SHMSEG  5       /* max number of shared segments per user       */ 
 #define SHMBRK  100     /* shared memory break value (pages)            */ 
 #define SHMALL  1024    /* maximum shared memory allocated (pages)      */ 
 #else                                                                      
-#define SHMSEG 0                                                           
+#define SHMSEG 4        /* allows for two shared libraries              */ 
 #endif                                                                     
     
 #ifdef FLOCK                                                               
 #define FLCKREC 200     /* record locking lock table size               */ 
-#define FLCKFIL 50      /* record locking file table size (for 5.2.2 locking)*/ 
 #endif
 
+#ifdef RFS                  
+#define NSRMOUNT        10  
+#define NADVERTISE      25  
+#define MAXGDP          24  
+#define NRCVD           150 
+#define NRDUSER         250 
+#define NSNDD           100 
+#define MINSERVE        3   
+#define MAXSERVE        6   
+#define RFHEAP          3072
+#define RFS_VHIGH       1   
+#define RFS_VLOW        1   
+#define RCACHETIME      10  
+#define NREMOTE         0   
+#define NLOCAL          0   
+#endif
+
+#ifdef STREAM
+#define NLOG 3
+#define LOGBSIZE 20
+#define SPCNT 20
+#define TIMCNT 10
+#define TRWCNT 10
+#endif
