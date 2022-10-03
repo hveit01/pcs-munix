@@ -12,8 +12,9 @@ typedef	struct	region	{
 	short	r_pgoff;	/* offset into region in pages */
 	short	r_nvalid;	/* number of valid pages in region */
 	short	r_refcnt;	/* number of users pointing at region */
+	short	r_incore;	/* number of users pointing at region */
 	short	r_type;		/* type of region */
-	union pte **r_list;     /* Pointer to a list of pointers to     */
+	pte_t	**r_list;	/* Pointer to a list of pointers to	*/
 				/* page tables and dbd's.		*/
 	long    r_filesz;       /* size in bytes of section of file     */
 				/* from which this region is loaded.	*/
@@ -75,8 +76,6 @@ typedef struct pregion {
 #define	PT_DATA		0x02		/* Data region.			*/
 #define	PT_STACK	0x03		/* Stack region.		*/
 #define	PT_SHMEM	0x04		/* Shared memory region.	*/
-#define PT_LIBTXT       0x05            /* Shared library text region.  */
-#define PT_LIBDAT       0x06            /* Shared library data region.  */
 
 extern preg_t	nullpregion;		/* A null preg_t. */
 extern int	pregpp;			/* Number of pregions per	*/
@@ -151,20 +150,10 @@ typedef struct dbd {
 
 /* ptbr Mapping */
 struct ptbrmap {
-	ushort  p_segno;        /* ptbr index */
-#ifndef C20
-	ushort  p_descr;        /* ptbr descriptor */
-#else
-	long    p_descr;        /* ptbr descriptor */
-#endif
+	short   p_segno;        /* ptbr index */
+	short   p_descr;        /* ptbr descriptor */
 };
 
 /* ptbr bits */
-#ifndef C20
 #define MP_VALID        0xC000
 #define MP_ADDR         0x3FFF
-#else
-/* descriptor type for first level is either 00 = invalid or 10 = 4 byte descriptor */
-#define DT_MASK         0x3
-#define DT_SHORT        0x2
-#endif

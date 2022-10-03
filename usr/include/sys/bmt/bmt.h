@@ -40,49 +40,49 @@ typedef long (*Funcp)();
 #define	wintr	2
 
 typedef struct {
-	char    ram[ 0x3e000 ],											/*0     - 3dfff*/
-		bss[  0x1000 ];												/*3e000 - 3efff*/
-	long    func; /*  host -> bitmap call box  */					/*3f000 - 3f003*/
-	long    args[6],												/*3f004 - 3f01b*/
-		funcret;													/*3f01c - 3f01f*/
-	char    wbuf[ 1024 ],											/*3f020 - 3f41f*/
-		keys[   32 ],												/*3f420 - 3f43f*/
-		funcs[  32 ];												/*3f440 - 3f45f*/
-	short   intr_state;												/*3f460 */
+	char    ram[ 0x3e000 ],
+		bss[  0x1000 ];
+	long    func; /*  host -> bitmap call box  */
+	long    args[6],
+		funcret;
+	char    wbuf[ 1024 ],
+		keys[   32 ],
+		funcs[  32 ];
+	short   intr_state;
 		/*  <-> unix bip tty driver /usr/src/sys/dev/bip.c:
 		 *  biprint sets intr_state = 0   => keyb can qintr again
 		 */
-	short     rintno, wintno; /*  E0/4  =>  qbus interrupt on key  *//*3f462, 3f464*/
-	char    skip[ 0x3ffe0 - 0x3f466 ];								
+	short     rintno, wintno; /*  E0/4  =>  qbus interrupt on key  */
+	char    skip[ 0x3ffe0 - 0x3f466 ];
 /*  3ffe0: bip ctl:  */
-	short   go,														/*3ffe0*/
-		intr_local68,												/*3ffe2*/
-		map0,														/*3ffe4*/
-		map1,														/*3ffe6*/
-		mousereg,													/*3ffe8*/
-		mregs[  3 ],												/*3ffea*/
-		sio[    4 ],												/*3fff0 - 3fff7*/
-		pixctl[ 4 ]; /*  sizeof( struct device) == 0x40000  */		/*3fff8 - 3ffff*/
+	short   go,
+		intr_local68,
+		map0,
+		map1,
+		mousereg,
+		mregs[  3 ],
+		sio[    4 ],
+		pixctl[ 4 ]; /*  sizeof( struct device) == 0x40000  */
 } Bip_device;
 
 /*   Layout of a Bitmap memory      */
 
 typedef struct bip_device {
-	char    ram[ (RAM_SIZE - COMM_SIZE - BOOT_SIZE - 12L) ];		  		/*0     - 1fe8b*/
-	char	boot[BOOT_SIZE];										  		/*1fe8c - 1ffcb*/
-	short	host_intr;	/* Host interrupt vector set by  the Host  */ 		/*1ffcc - 1ffcd*/
-	short	bmt_id;		/* Bitmap id set by the Host or dowload    */		/*1ffce - 1ffcf*/
-	long	host_base;	/* Start address of BMT ram for the Host   */		/*1ffd0 - 1ffd3*/ 
-	long	bmt_desp;	/* Pointer to BMT_DES structure set by Bmt */		/*1ffd4 - 1ffd7*/
-	char	dbg[COMM_SIZE]; /* Communication Arrea for RTK Debugger    */	/*1ffd8 - 1ffdf*/
-	short   go, 		/* Bitmap controll registers               */		/*1ffe0*/
-		intr_local68,														/*1ffe2*/
-		map0,																/*1ffe4*/
-		map1,																/*1ffe6*/
-		mousereg,															/*1ffe8*/
-		mregs[  3 ],														/*1ffea*/
-		sio[    4 ],														/*1fff0*/
-		pixctl[ 4 ]; /*  sizeof( struct device) == 0x40000  */				/*1fff8*/
+	char    ram[ (RAM_SIZE - COMM_SIZE - BOOT_SIZE - 12L) ];
+	char	boot[BOOT_SIZE];
+	short	host_intr;	/* Host interrupt vector set by  the Host  */
+	short	bmt_id;		/* Bitmap id set by the Host or dowload    */
+	long	host_base;	/* Start address of BMT ram for the Host   */
+	long	bmt_desp;	/* Pointer to BMT_DES structure set by Bmt */
+	char	dbg[COMM_SIZE]; /* Communication Arrea for RTK Debugger    */
+	short   go, 		/* Bitmap controll registers               */
+		intr_local68,
+		map0,
+		map1,
+		mousereg,
+		mregs[  3 ],
+		sio[    4 ],
+		pixctl[ 4 ]; /*  sizeof( struct device) == 0x40000  */
 } BIP_DEVICE;
 
 
@@ -181,7 +181,7 @@ typedef	struct
 {
 	Point	pos;		/* Mouse Position	*/
 	short	keys;		/* Mouse Buttons	*/
-} WPS_BLOCK;
+	} WPS_BLOCK;
 /* **************************************************************************
  * 	For each BMT there is  a variable of BMT_DES which is located in 
  *  	BMT memory.
@@ -205,7 +205,7 @@ typedef	struct
 	WPS_BLOCK wps_old;		/* Previous WPS Record	*/
 	/* **************** Long Messages Objects  **********************/
 	LONG_BMT_MESSAGE long_msg;
- } BMT_DES;
+} BMT_DES;
 
 
 #endif

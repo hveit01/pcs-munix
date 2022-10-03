@@ -16,9 +16,14 @@ To guarantee correctness of the rebuilt sources, I used the following process:
   Looking up similar sources from elsehere, like Bitsavers and Tuhs, I could identify the original parts from AT&T code and find the modifications that PCS made to it. The whole I/O devices library was non-AT&T code, some of it resembled PDP11 QBUS device handlers, but most of it was hard work to compare the driver code with DEC documentation e.g. from Bitsavers.
 - After having the regenerated source code, it was necessary to verify its correctness. I wrote, based on the 68K Musashi emulator code, a syscall emulator (pcsrun) that translated the most important MUNIX syscalls (COFF loader, open, close, read, write, fork, etc.) into corresponding OS calls, so that an original MUNIX executable like CC itself basically worked with files from the underlying OS (in my case Windows, or Linux, resp.). It contains only the syscalls that the compiler/linker etc. used, however, so it won't allow to try out network code. This way, I could run my C code through the original compiler from the MUNIX distribution, and compare its output with the original binaries. This way I found numerous anachronisms that resulted from some rather obscure type casts (which messed up register usage), as well as unused variables an even several bugs that appear to come from sloppy adaption of original AT&T code to the platform. When trying to get the LD linker to run, it turned out that this will work only after relaxing seg fault handling on NULL pointers - some strcmp(xxx,(char*)0) were found in the code.
 
-- For reference, pcsdis and pcsrun are also included, however the code is ugly - they were just work horse for the purpose of getting stuff done.
-
 Beyond references to unmodified AT&T copyrighted sources from elsewhere which were included for documentation where the code came from, all files may be freely used.
 
-Holger Veit hveit01@web.de 26.7.2022
+
+Holger Veit hveit01@web.de 3.10.2022
+
+History:
+- Initial version of kernel from IS0371P tape
+- Addition of C library from IS0461P tape - includes support for SVR3 streams
+- The initially included directories pcsrun_source and pcsdis_source have been
+  removed and moved into separate repositories
 

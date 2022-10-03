@@ -1,4 +1,4 @@
-	/*  sys/bitmap.h  with bipctl at 3ffe0  */
+/*  sys/bitmap.h  with bipctl at 3ffe0  */
 typedef long (*Funcp)();
 
 struct bip_device {

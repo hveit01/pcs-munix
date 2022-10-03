@@ -5,7 +5,7 @@
 /*	The copyright notice above does not evidence any   	*/
 /*	actual or intended publication of such source code.	*/
 
-/*#ident	"@(#)kern-port:sys/dirent.h	10.5"*/
+#ident	"@(#)kern-port:sys/dirent.h	10.5"
 
 /*
  * The following structure defines the file

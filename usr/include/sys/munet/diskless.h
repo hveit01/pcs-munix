@@ -103,9 +103,7 @@ struct dltable {		/* dlnode accounting table */
 };
 
 extern struct dltable dltable[];
-#ifdef ONMASTER
 extern ino_t minolist[];
-#endif ONMASTER
 
 /*
  * dltable flags

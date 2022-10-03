@@ -1,15 +1,13 @@
 /* @(#)init.h   6.4 */
 extern int clkstart(),cinit(),binit(),errinit(),iinit(),inoinit();
 extern int dialog(), dialog1();
-extern int fsinit(), finit(), strinit();
-extern int flckinit(), bsd_init();
+extern int finit();
+extern int flckinit();
 extern int scsi_init(), eginit(), uiinit(), dlnodeinit(), init_vtty(),
 	   msginit(), seminit(), dsklinit(),
 	   iw_init(), if_init(), is_init(),
-	   icc_ieinit(), swinit(), sw2init(),
-	   scoinit(), scsiinit(), col_init(), fx_init(),
-	   mkvinit(), mainit(), svinit(), clock_init();
-extern int x25reseticc(), sdlc_check(), msv_init();
+	   tcp_init(), swinit(), sw2init(), col_init();
+extern int x25reseticc(), sdlc_check();
 
 /*	Array containing the addresses of the various initializing	*/
 /*	routines executed by "main" at boot time.			*/
@@ -18,46 +16,26 @@ int (*init_tbl[])() = {
 #ifdef COL
 	col_init,
 #endif
+	inoinit,
+/*      clkstart,       called in startup */
 	cinit,
 	binit,
-	inoinit,
-	fsinit,
-/*      clkstart,       called in startup */
 /*      errinit,        */
 	finit,
-#ifndef C20
-#   ifdef SCSI
+#ifdef SCSI
 	scsi_init,
-#   endif
-#   ifdef XT
+#endif
+#ifdef XT
 	sasi_init,
-#   endif
-#   ifdef EAGLE
+#endif
+#ifdef EAGLE
 	eginit,
-#   endif
-#   ifdef SW
+#endif
+#ifdef SW
 	swinit,
-#   endif
-#   ifdef SW2
+#endif
+#ifdef SW2
 	sw2init,
-#   endif
-#else C20
-#   ifdef C18
-	scoinit,
-#   else
-	clock_init,
-#   endif
-#   ifdef FD
-	scsiinit,
-#   endif
-#endif
-#ifdef KD
-	mkvinit,
-	mainit,
-	svinit,
-#endif
-#ifdef CGP
-	fx_init,
 #endif
 #if defined(DLSUPPORT) && !defined(MASTERNODE)
 	dsklinit,
@@ -68,12 +46,6 @@ int (*init_tbl[])() = {
 	iinit,
 #ifdef FLOCK
 	flckinit,
-#endif
-#ifdef STREAM
-	strinit,
-#endif
-#ifdef SOCKET
-	bsd_init,
 #endif
 #ifdef VTTY
 	init_vtty,
@@ -87,38 +59,33 @@ int (*init_tbl[])() = {
 	0
 };
 
-#ifndef C20
 int (*icc_initprocs[]) () = {
-#ifdef IW
+#if defined(IW)
 		iw_init,
 #endif
-#ifdef IF
+#if defined(IF)
 		if_init,
 #endif
-#ifdef IS
+#if defined(IS)
 		is_init,
 #endif
-#ifdef ICC_UNISON
+#if ICC_UNISON
 		uiinit,
 #endif
-#ifdef SOCKET
-		icc_ieinit,
+#ifdef ICC_TCPIP
+		tcp_init,
 #endif
 		0
 };
 
 #ifdef ICC
-struct  down_initprocs down_initprocs[] = {
+int (*down_initprocs[]) () = {
 #ifdef SDLC
-		sdlc_check,SDLC_ICCNR,
+		sdlc_check,
 #endif SDLC
 #ifdef X25 
-		x25reseticc,X25_ICCNR,
+		x25reseticc,
 #endif X25
-#ifdef MSV1
-		msv_init,MSV1_ICCNR,
-#endif
-		0L, 0
+		0L
 };
-#endif  ICC
-#endif  C20
+#endif

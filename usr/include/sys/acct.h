@@ -1,11 +1,4 @@
-/*	Copyright (c) 1984 AT&T	*/
-/*	  All Rights Reserved  	*/
-
-/*	THIS IS UNPUBLISHED PROPRIETARY SOURCE CODE OF AT&T	*/
-/*	The copyright notice above does not evidence any   	*/
-/*	actual or intended publication of such source code.	*/
-
-/*#ident      "@(#)kern-port:sys/acct.h       10.2"*/
+/* @(#)acct.h	6.1 */
 /*
  * Accounting structures
  */
@@ -32,7 +25,7 @@ struct	acct
 
 extern	struct	acct	acctbuf;
 extern	struct	inode	*acctp;		/* inode of accounting file */
-extern  short   acctdev;                /* device of accounting file */
+extern  short acctdev;                        /* device of accounting file */
 
 #define	AFORK	01		/* has executed fork, but no exec */
 #define	ASU	02		/* used super-user privileges */
